@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legends Bot – Producción</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1220">
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: #e5e7eb;
+    }
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border-radius: 20px;
+      padding: 26px 22px 28px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .status {
+      margin-top: 16px;
+      font-size: 0.75rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+    pre {
+      margin-top: 16px;
+      background: #020617;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+
+    <div class="field">
+      <label>COMPAÑÍA</label>
+      <select id="company">
+        <option value="VTR">VTR</option>
+        <option value="CLARO">CLARO</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>MODO</label>
+      <select id="mode">
+        <option value="factibilidad">Factibilidad</option>
+        <option value="validacion">Validación</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>DIRECCIÓN</label>
+      <input id="address" type="text">
+    </div>
+
+    <div class="field">
+      <label>COMUNA</label>
+      <input id="comuna" type="text">
+    </div>
+
+    <div class="field">
+      <label>RUT</label>
+      <input id="rut" type="text">
+    </div>
+
+    <div class="actions">
+      <button id="btnRun" class="btn-primary">Ejecutar</button>
+      <button id="btnClear" class="btn-secondary">Limpiar</button>
+    </div>
+
+    <div class="status">
+      <div class="dot"></div>
+      <span id="statusText">Listo — conectado a la API</span>
+    </div>
+
+    <pre id="output"></pre>
+
+  </div>
+</div>
+
+<!-- MODAL IMAGEN -->
+<div id="imgModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+">
+  <img id="modalImg" style="
+    max-width:95%;
+    max-height:80%;
+    border-radius:12px;
+  ">
+
+  <div style="margin-top:14px; display:flex; gap:12px;">
+    <button id="btnPdf" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      background:#2563eb;
+      color:white;
+      font-weight:600;
+    ">📄 Descargar PDF</button>
+
+    <button onclick="closeImgModal()" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid #555;
+      background:transparent;
+      color:#ccc;
+    ">✖ Cerrar</button>
+  </div>
+</div>
+
+<!-- LIBS PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
