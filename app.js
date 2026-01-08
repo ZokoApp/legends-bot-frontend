@@ -3,47 +3,41 @@ const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
-const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev"; // API vía ngrok
+const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev";
 
 function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-// ===============================
-// LIMPIAR
-// ===============================
+function setStatus(text) {
+  statusText.textContent = text;
+}
+
 btnClear.addEventListener("click", () => {
   output.textContent = "";
-  statusText.textContent = "Listo — conectado a la API";
+  setStatus("🟢 Listo — conectado a la API");
 });
 
-// ===============================
-// EJECUTAR
-// ===============================
 btnRun.addEventListener("click", async () => {
   const company = document.getElementById("company").value;
   const mode = document.getElementById("mode").value;
   const direccion = document.getElementById("address").value.trim();
   const comuna = document.getElementById("comuna").value.trim();
-  const rutInput = document.getElementById("rut");
-  const rut = rutInput ? rutInput.value.trim() : "";
+  const rut = document.getElementById("rut")?.value.trim();
 
   output.textContent = "";
-  statusText.textContent = "⏳ Enviando consulta...";
+  setStatus("⏳ Enviando consulta…");
 
   try {
-    let jobId, pollUrl;
+    let pollUrl = null;
 
-    // ===============================
-    // FACTIBILIDAD
-    // ===============================
     if (mode === "factibilidad") {
       if (!direccion || !comuna) {
-        statusText.textContent = "🔴 Faltan datos";
+        setStatus("🔴 Falta dirección o comuna");
         return;
       }
 
-      const r = await fetch(`${API}/factibilidad`, {
+      const start = await fetch(`${API}/factibilidad`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,98 +46,72 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      if (!r.ok) throw new Error("Error iniciando factibilidad");
+      if (!start.ok) {
+        throw new Error("No se pudo iniciar la factibilidad");
+      }
 
-      const d = await r.json();
-      jobId = d.jobId;
-      pollUrl = `${API}/factibilidad/${jobId}`;
+      const data = await start.json();
+      pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
-    statusText.textContent = "🟡 Ejecutando en Citrix...";
+    setStatus("🟡 Ejecutando en Citrix…");
 
-    // ===============================
-    // POLLING
-    // ===============================
     while (true) {
       await sleep(2000);
 
-      const r = await fetch(pollUrl, {
+      const poll = await fetch(pollUrl, {
         headers: {
           "ngrok-skip-browser-warning": "true"
         }
       });
 
-      if (!r.ok) throw new Error("Error consultando estado");
+      if (!poll.ok) {
+        throw new Error("Error consultando estado");
+      }
 
-      const d = await r.json();
+      const result = await poll.json();
 
-      if (d.status === "running" || d.status === "queued") continue;
+      if (result.status === "running" || result.status === "queued") {
+        continue;
+      }
 
-      if (d.status === "error") {
-        statusText.textContent = "🔴 Error";
-        output.textContent = d.error || "Error desconocido";
+      if (result.status === "error") {
+        setStatus("🔴 Error");
+        output.textContent = result.error || "Error desconocido";
         return;
       }
 
-      if (d.status === "done") {
-        statusText.textContent = "🟢 Finalizado";
-        output.textContent = d.resultado || "OK";
+      if (result.status === "done") {
+        setStatus("🟢 Finalizado");
 
-        // ===============================
-        // CAPTURA
-        // ===============================
-        if (d.capturaUrl) {
-          const img = document.createElement("img");
-          img.src = API + d.capturaUrl + "?t=" + Date.now();
-          img.style.width = "100%";
-          img.style.marginTop = "12px";
-          img.style.borderRadius = "12px";
-          img.style.cursor = "zoom-in";
-
-          img.onclick = () => openImgModal(img.src);
-
-          output.appendChild(document.createElement("hr"));
-          output.appendChild(img);
+        if (result.resultado) {
+          const pre = document.createElement("pre");
+          pre.textContent = result.resultado;
+          pre.style.whiteSpace = "pre-wrap";
+          output.appendChild(pre);
         }
+
+        if (result.capturaUrl) {
+  const img = document.createElement("img");
+  img.src = result.capturaUrl + "?t=" + Date.now(); // ✅ URL CLOUDINARY
+  img.style.width = "100%";
+  img.style.marginTop = "12px";
+  img.style.borderRadius = "12px";
+  img.style.cursor = "zoom-in";
+
+  img.onload = () => console.log("✅ Imagen cargada");
+  img.onerror = () => console.error("❌ Error cargando imagen:", img.src);
+
+  img.onclick = () => window.open(img.src, "_blank");
+  output.appendChild(img);
+}
 
         return;
       }
     }
 
   } catch (e) {
-    statusText.textContent = "🔴 Error";
+    setStatus("🔴 Error");
     output.textContent = e.message;
   }
-});
-
-// ===============================
-// MODAL IMAGEN
-// ===============================
-let currentImgSrc = null;
-
-function openImgModal(src) {
-  currentImgSrc = src;
-  document.getElementById("modalImg").src = src;
-  document.getElementById("imgModal").style.display = "flex";
-}
-
-function closeImgModal() {
-  document.getElementById("imgModal").style.display = "none";
-}
-
-// ===============================
-// PDF
-// ===============================
-document.getElementById("btnPdf").addEventListener("click", async () => {
-  const img = document.getElementById("modalImg");
-  const canvas = await html2canvas(img, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
-  const w = pdf.internal.pageSize.getWidth();
-  const h = (canvas.height * w) / canvas.width;
-
-  pdf.addImage(imgData, "PNG", 0, 10, w, h);
-  pdf.save("factibilidad.pdf");
 });
