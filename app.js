@@ -32,29 +32,47 @@ btnRun.addEventListener("click", async () => {
     let pollUrl = null;
 
     if (mode === "factibilidad") {
-      if (!direccion || !comuna) {
-        setStatus("🔴 Falta dirección o comuna");
-        return;
-      }
+  if (!direccion || !comuna) {
+    setStatus("🔴 Falta dirección o comuna");
+    return;
+  }
 
-      const start = await fetch(`${API}/factibilidad`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify({ direccion, comuna, company })
-      });
+  const start = await fetch(`${API}/factibilidad`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
+    body: JSON.stringify({ direccion, comuna, company }),
+  });
 
-      if (!start.ok) {
-        throw new Error("No se pudo iniciar la factibilidad");
-      }
+  const data = await start.json();
+  pollUrl = `${API}/factibilidad/${data.jobId}`;
+}
 
-      const data = await start.json();
-      pollUrl = `${API}/factibilidad/${data.jobId}`;
-    }
+// ==============================
+// 🧾 ESTADO RUT
+// ==============================
+if (mode === "rut") {
+  if (!rut) {
+    setStatus("🔴 Falta el RUT");
+    return;
+  }
 
-    setStatus("🟡 Ejecutando en Citrix…");
+  const start = await fetch(`${API}/estado-rut`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
+    body: JSON.stringify({ rut, company }),
+  });
+
+  const data = await start.json();
+  pollUrl = `${API}/estado-rut/${data.jobId}`;
+}
+
+    setStatus("🟡 Ejecutando en Legends…");
 
     while (true) {
       await sleep(2000);
