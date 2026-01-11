@@ -3,9 +3,12 @@ const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
-// ⚠️ Tu API NGROK
+// ⚠️ TU API (NGROK / LOCAL)
 const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev";
 
+// =========================
+// UTILS
+// =========================
 function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
@@ -18,17 +21,23 @@ function clearOutput() {
   output.innerHTML = "";
 }
 
+// =========================
+// LIMPIAR
+// =========================
 btnClear.addEventListener("click", () => {
   clearOutput();
   setStatus("🟢 Listo — conectado a la API");
 });
 
+// =========================
+// EJECUTAR
+// =========================
 btnRun.addEventListener("click", async () => {
   const company = document.getElementById("company").value;
-  const mode = document.getElementById("mode").value; // "factibilidad" / "validacion" / "factibilidad_rut" (nuevo)
+  const mode = document.getElementById("mode").value;
   const direccion = document.getElementById("address").value.trim();
   const comuna = document.getElementById("comuna").value.trim();
-  const rut = document.getElementById("rut")?.value.trim();
+  const rut = document.getElementById("rut").value.trim();
 
   clearOutput();
   setStatus("⏳ Enviando consulta…");
@@ -54,7 +63,7 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar la factibilidad");
+      if (!start.ok) throw new Error("No se pudo iniciar factibilidad");
 
       const data = await start.json();
       pollUrl = `${API}/factibilidad/${data.jobId}`;
@@ -85,7 +94,7 @@ btnRun.addEventListener("click", async () => {
     }
 
     // =========================
-    // NUEVO: FACTIBILIDAD POR RUT
+    // FACTIBILIDAD POR RUT
     // =========================
     if (mode === "factibilidad_rut") {
       if (!rut) {
@@ -108,6 +117,30 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
     }
 
+    // =========================
+    // 🧾 BOLETA / FACTURA
+    // =========================
+    if (mode === "boleta") {
+      if (!rut) {
+        setStatus("🔴 Falta el RUT");
+        return;
+      }
+
+      const start = await fetch(`${API}/boleta`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({ rut, company })
+      });
+
+      if (!start.ok) throw new Error("No se pudo iniciar búsqueda de boleta");
+
+      const data = await start.json();
+      pollUrl = `${API}/boleta/${data.jobId}`;
+    }
+
     if (!pollUrl) {
       setStatus("🔴 Modo inválido");
       return;
@@ -115,24 +148,22 @@ btnRun.addEventListener("click", async () => {
 
     setStatus("🟡 Ejecutando en Legends…");
 
-    // Poll
+    // =========================
+    // POLLING
+    // =========================
     while (true) {
       await sleep(2000);
 
       const poll = await fetch(pollUrl, {
-        headers: {
-          "ngrok-skip-browser-warning": "true"
-        }
+        headers: { "ngrok-skip-browser-warning": "true" }
       });
 
-      if (!poll.ok) {
-        throw new Error("Error consultando estado");
-      }
+      if (!poll.ok) throw new Error("Error consultando estado");
 
       const result = await poll.json();
 
       if (result.status === "queued") {
-        setStatus("🟠 En cola… (hay otra consulta ejecutándose)");
+        setStatus("🟠 En cola…");
         continue;
       }
 
@@ -147,9 +178,13 @@ btnRun.addEventListener("click", async () => {
         return;
       }
 
+      // =========================
+      // FINALIZADO
+      // =========================
       if (result.status === "done") {
         setStatus("🟢 Finalizado");
 
+        // TEXTO
         if (result.resultado) {
           const pre = document.createElement("pre");
           pre.textContent = result.resultado;
@@ -157,9 +192,9 @@ btnRun.addEventListener("click", async () => {
           output.appendChild(pre);
         }
 
+        // IMAGEN (Cloudinary)
         if (result.capturaUrl) {
           const img = document.createElement("img");
-          // OJO: capturaUrl ya es URL completa de Cloudinary
           img.src = result.capturaUrl + "?t=" + Date.now();
           img.style.width = "100%";
           img.style.marginTop = "12px";
@@ -167,6 +202,31 @@ btnRun.addEventListener("click", async () => {
           img.style.cursor = "zoom-in";
           img.onclick = () => window.open(img.src, "_blank");
           output.appendChild(img);
+        }
+
+        // PDF BOLETA
+        if (result.pdfUrl) {
+          const a = document.createElement("a");
+          a.href = result.pdfUrl;
+          a.target = "_blank";
+          a.textContent = "📄 Descargar boleta en PDF";
+          a.style.display = "inline-block";
+          a.style.marginTop = "14px";
+          a.style.padding = "10px 14px";
+          a.style.borderRadius = "10px";
+          a.style.background = "#2563eb";
+          a.style.color = "#fff";
+          a.style.fontWeight = "600";
+          output.appendChild(a);
+        }
+
+        // SIN BOLETA
+        if (result.noBoleta) {
+          const msg = document.createElement("div");
+          msg.textContent = "ℹ️ No hay boleta disponible para este cliente";
+          msg.style.marginTop = "12px";
+          msg.style.color = "#9ca3af";
+          output.appendChild(msg);
         }
 
         return;
