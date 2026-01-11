@@ -3,6 +3,7 @@ const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
+// ⚠️ Tu API NGROK
 const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev";
 
 function sleep(ms) {
@@ -13,27 +14,31 @@ function setStatus(text) {
   statusText.textContent = text;
 }
 
+function clearOutput() {
+  output.innerHTML = "";
+}
+
 btnClear.addEventListener("click", () => {
-  output.textContent = "";
-  setStatus("🟢 Listo");
+  clearOutput();
+  setStatus("🟢 Listo — conectado a la API");
 });
 
 btnRun.addEventListener("click", async () => {
   const company = document.getElementById("company").value;
-  const mode = document.getElementById("mode").value;
-  const direccion = document.getElementById("address")?.value.trim();
-  const comuna = document.getElementById("comuna")?.value.trim();
+  const mode = document.getElementById("mode").value; // "factibilidad" / "validacion" / "factibilidad_rut" (nuevo)
+  const direccion = document.getElementById("address").value.trim();
+  const comuna = document.getElementById("comuna").value.trim();
   const rut = document.getElementById("rut")?.value.trim();
 
-  output.textContent = "";
+  clearOutput();
   setStatus("⏳ Enviando consulta…");
 
   try {
     let pollUrl = null;
 
-    /* ===============================
-       📌 FACTIBILIDAD
-    =============================== */
+    // =========================
+    // FACTIBILIDAD POR DIRECCIÓN
+    // =========================
     if (mode === "factibilidad") {
       if (!direccion || !comuna) {
         setStatus("🔴 Falta dirección o comuna");
@@ -49,15 +54,15 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar factibilidad");
+      if (!start.ok) throw new Error("No se pudo iniciar la factibilidad");
 
       const data = await start.json();
       pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
-    /* ===============================
-       📌 VALIDACIÓN / ESTADO RUT
-    =============================== */
+    // =========================
+    // VALIDACIÓN (ESTADO RUT)
+    // =========================
     if (mode === "validacion") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -79,28 +84,62 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/estado-rut/${data.jobId}`;
     }
 
-    // 🔒 Seguridad extra
+    // =========================
+    // NUEVO: FACTIBILIDAD POR RUT
+    // =========================
+    if (mode === "factibilidad_rut") {
+      if (!rut) {
+        setStatus("🔴 Falta el RUT");
+        return;
+      }
+
+      const start = await fetch(`${API}/factibilidad-rut`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({ rut, company })
+      });
+
+      if (!start.ok) throw new Error("No se pudo iniciar factibilidad por RUT");
+
+      const data = await start.json();
+      pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
+    }
+
     if (!pollUrl) {
-      throw new Error("Modo no soportado");
+      setStatus("🔴 Modo inválido");
+      return;
     }
 
     setStatus("🟡 Ejecutando en Legends…");
 
-    /* ===============================
-       🔄 POLLING
-    =============================== */
+    // Poll
     while (true) {
       await sleep(2000);
 
       const poll = await fetch(pollUrl, {
-        headers: { "ngrok-skip-browser-warning": "true" }
+        headers: {
+          "ngrok-skip-browser-warning": "true"
+        }
       });
 
-      if (!poll.ok) throw new Error("Error consultando estado");
+      if (!poll.ok) {
+        throw new Error("Error consultando estado");
+      }
 
       const result = await poll.json();
 
-      if (result.status === "running") continue;
+      if (result.status === "queued") {
+        setStatus("🟠 En cola… (hay otra consulta ejecutándose)");
+        continue;
+      }
+
+      if (result.status === "running") {
+        setStatus("🟡 Ejecutando en Legends…");
+        continue;
+      }
 
       if (result.status === "error") {
         setStatus("🔴 Error");
@@ -120,6 +159,7 @@ btnRun.addEventListener("click", async () => {
 
         if (result.capturaUrl) {
           const img = document.createElement("img");
+          // OJO: capturaUrl ya es URL completa de Cloudinary
           img.src = result.capturaUrl + "?t=" + Date.now();
           img.style.width = "100%";
           img.style.marginTop = "12px";
