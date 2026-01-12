@@ -4,7 +4,7 @@ const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
 // ⚠️ TU API (NGROK / LOCAL)
-const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev";
+const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
 // =========================
 // UTILS
