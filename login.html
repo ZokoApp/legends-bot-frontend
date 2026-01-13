@@ -1,4 +1,37 @@
-<script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Legends Bot · Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-body">
+
+  <div class="login-card">
+    <h1>Legends Bot</h1>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="usuario@legendsbot.com"
+      autocomplete="username"
+    />
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Contraseña"
+      autocomplete="current-password"
+    />
+
+    <button onclick="login()">Ingresar</button>
+
+    <p id="error" class="error"></p>
+  </div>
+
+  <script>
   const API_LOGIN_URL =
     "https://script.google.com/macros/s/AKfycby9G3Bv3mVDL5GlNu41Wfx_bIzkJCifi8CCmS_MvBkEmeO09fdRaVjNenHNewAeKj4P/exec";
 
@@ -43,3 +76,5 @@
     errorBox.style.display = "block";
   }
 </script>
+</body>
+</html>
