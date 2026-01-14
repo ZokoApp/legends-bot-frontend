@@ -3,6 +3,12 @@ const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
+const user = JSON.parse(localStorage.getItem("legendsUser"));
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
 // ⚠️ TU API (NGROK / LOCAL)
 const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
