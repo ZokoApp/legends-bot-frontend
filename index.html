@@ -2,15 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- 🔐 PROTECCIÓN DE SESIÓN (PRIMERO) -->
-  <script>
-    const userSession = localStorage.getItem("legends_user");
-    if (!userSession) {
-      window.location.replace("login.html");
-    }
-  </script>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Legends Bot – Producción</title>
 
@@ -34,7 +25,6 @@
       padding: 20px 20px 40px;
     }
 
-    /* 🔝 HEADER */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -66,7 +56,8 @@
       margin-bottom: 6px;
     }
 
-    .field input, .field select {
+    .field input,
+    .field select {
       width: 100%;
       padding: 14px;
       border-radius: 14px;
@@ -189,57 +180,46 @@
   </div>
 </div>
 
-<!-- MODAL IMAGEN -->
-<div id="imgModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.9);
-  z-index:9999;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-">
-  <img id="modalImg" style="max-width:95%; max-height:80%; border-radius:12px;">
-
-  <div style="margin-top:14px; display:flex; gap:12px;">
-    <button id="btnPdf" style="padding:10px 16px;border-radius:10px;border:none;background:#2563eb;color:white;font-weight:600;">
-      📄 Descargar PDF
-    </button>
-
-    <button onclick="closeImgModal()" style="padding:10px 16px;border-radius:10px;border:1px solid #555;background:transparent;color:#ccc;">
-      ✖ Cerrar
-    </button>
-  </div>
-</div>
-
-<!-- LIBS PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<!-- ========================= -->
+<!-- 🔐 SESIÓN (DESPUÉS DE CARGAR) -->
+<!-- ========================= -->
 <script>
-  const user = JSON.parse(localStorage.getItem("legends_user"));
-  if (user) {
+  window.addEventListener("load", () => {
+    const user = localStorage.getItem("legends_user");
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const data = JSON.parse(user);
     document.getElementById("userInfo").innerText =
-      `${user.nombre} · ${user.rol}`;
-  }
+      `${data.nombre} · ${data.rol}`;
+  });
 
   function logout() {
     localStorage.removeItem("legends_user");
-    window.location.replace("login.html");
+    window.location.href = "login.html";
   }
 </script>
 
-<script src="app.js"></script>
-
-  <script>
+<!-- ========================= -->
+<!-- 🔧 SERVICE WORKER -->
+<!-- ========================= -->
+<script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/service-worker.js")
-        .then(reg => console.log("SW registrado", reg))
-        .catch(err => console.error("SW error", err));
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then(reg => console.log("✅ SW registrado", reg))
+        .catch(err => console.error("❌ SW error", err));
     });
   }
 </script>
+
+<!-- ========================= -->
+<!-- APP -->
+<!-- ========================= -->
+<script src="app.js"></script>
+
 </body>
 </html>
