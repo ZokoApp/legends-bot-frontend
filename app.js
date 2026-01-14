@@ -3,7 +3,7 @@ const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
-const user = JSON.parse(localStorage.getItem("legendsUser"));
+const user = JSON.parse(localStorage.getItem("legends_user"));
 
 if (!user) {
   window.location.href = "login.html";
