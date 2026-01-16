@@ -26,6 +26,55 @@ if (user.rol !== "admin") {
     .forEach(el => el.remove());
 }
 
+
+// ===============================
+// ADMIN — SUBIR EXCEL
+// ===============================
+
+const btnUploadExcel = document.getElementById("btnUploadExcel");
+const excelInput = document.getElementById("excelInput");
+
+if (btnUploadExcel && excelInput) {
+  btnUploadExcel.addEventListener("click", () => {
+    excelInput.click(); // 🔥 abre el selector
+  });
+
+  excelInput.addEventListener("change", async () => {
+    const file = excelInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("archivo", file);
+
+    statusText.innerText = "⏳ Subiendo Excel...";
+
+    try {
+      const res = await fetch(`${API}/admin/subir-excel`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        throw new Error(data.msg || "Error al subir Excel");
+      }
+
+      output.innerText =
+        `✅ Excel cargado correctamente\n` +
+        `Total ventas: ${data.totalVentas}`;
+
+      statusText.innerText = "✅ Excel procesado";
+
+    } catch (err) {
+      statusText.innerText = "❌ Error";
+      output.innerText = err.message;
+    }
+
+    excelInput.value = ""; // reset
+  });
+}
+
 // ===============================
 // API
 // ===============================
