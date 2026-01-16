@@ -11,53 +11,32 @@
 
   <style>
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
       background: radial-gradient(circle at top, #0f172a, #020617);
       color: #e5e7eb;
     }
-
     .container {
       max-width: 420px;
       margin: 0 auto;
-      padding: 20px 20px 40px;
+      padding: 28px 20px 40px;
     }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      font-size: 0.8rem;
-      color: #9ca3af;
-    }
-
-    .logout {
-      cursor: pointer;
-      color: #ef4444;
-      font-weight: 600;
-    }
-
     .card {
       background: rgba(255,255,255,0.04);
       border-radius: 20px;
       padding: 26px 22px 28px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
     }
-
     .field { margin-bottom: 18px; }
-
     .field label {
       display: block;
       font-size: 0.75rem;
       color: #9ca3af;
       margin-bottom: 6px;
     }
-
-    .field input,
-    .field select {
+    .field input, .field select {
       width: 100%;
       padding: 14px;
       border-radius: 14px;
@@ -66,13 +45,11 @@
       color: #e5e7eb;
       font-size: 0.9rem;
     }
-
     .actions {
       display: flex;
       gap: 12px;
       margin-top: 20px;
     }
-
     button {
       flex: 1;
       padding: 14px;
@@ -82,18 +59,15 @@
       font-weight: 600;
       font-size: 0.95rem;
     }
-
     .btn-primary {
       background: linear-gradient(135deg, #2563eb, #1e40af);
       color: #fff;
     }
-
     .btn-secondary {
       background: transparent;
       color: #9ca3af;
       border: 1px solid rgba(255,255,255,0.2);
     }
-
     .status {
       margin-top: 16px;
       font-size: 0.75rem;
@@ -101,14 +75,12 @@
       gap: 6px;
       align-items: center;
     }
-
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #22c55e;
     }
-
     pre {
       margin-top: 16px;
       background: #020617;
@@ -122,14 +94,24 @@
 
 <body>
 
+<script>
+  const rawUser = localStorage.getItem("legends_user");
+  if (!rawUser) {
+    window.location.href = "login.html";
+  }
+</script>
+
 <div class="container">
 
-  <!-- 🔝 BARRA SUPERIOR -->
-  <div class="topbar">
-    <div id="userInfo"></div>
-    <div class="logout" onclick="logout()">Salir</div>
+  <!-- 🔒 PANEL SOLO ADMIN -->
+  <div class="card only-admin">
+    <h3 style="margin-top:0;">Panel Administrador</h3>
+    <button id="btnUploadExcel" class="btn-primary">
+      📊 Subir Excel de Ventas
+    </button>
   </div>
 
+  <!-- 🧠 PANEL OPERATIVO -->
   <div class="card">
 
     <div class="field">
@@ -180,46 +162,28 @@
   </div>
 </div>
 
-<!-- ========================= -->
-<!-- 🔐 SESIÓN (DESPUÉS DE CARGAR) -->
-<!-- ========================= -->
-<script>
-  window.addEventListener("load", () => {
-    const user = localStorage.getItem("legends_user");
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
+<!-- MODAL IMAGEN -->
+<div id="imgModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+">
+  <img id="modalImg" style="max-width:95%; max-height:80%; border-radius:12px;">
 
-    const data = JSON.parse(user);
-    document.getElementById("userInfo").innerText =
-      `${data.nombre} · ${data.rol}`;
-  });
+  <div style="margin-top:14px; display:flex; gap:12px;">
+    <button id="btnPdf" class="btn-primary">📄 Descargar PDF</button>
+    <button onclick="closeImgModal()" class="btn-secondary">✖ Cerrar</button>
+  </div>
+</div>
 
-  function logout() {
-    localStorage.removeItem("legends_user");
-    window.location.href = "login.html";
-  }
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- ========================= -->
-<!-- 🔧 SERVICE WORKER -->
-<!-- ========================= -->
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then(reg => console.log("✅ SW registrado", reg))
-        .catch(err => console.error("❌ SW error", err));
-    });
-  }
-</script>
-
-<!-- ========================= -->
-<!-- APP -->
-<!-- ========================= -->
 <script src="app.js"></script>
-
 </body>
 </html>
