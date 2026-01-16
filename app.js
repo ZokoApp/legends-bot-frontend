@@ -1,8 +1,10 @@
+// ===============================
+// ELEMENTOS
+// ===============================
 const btnRun = document.getElementById("btnRun");
 const btnClear = document.getElementById("btnClear");
 const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
-
 
 // ===============================
 // SESIÓN
@@ -16,15 +18,18 @@ if (!rawUser) {
 const user = JSON.parse(rawUser);
 
 // ===============================
-// CONTROL DE ROL
+// CONTROL ADMIN
 // ===============================
 if (user.rol !== "admin") {
   document
     .querySelectorAll(".only-admin")
     .forEach(el => el.remove());
 }
-// ⚠️ TU API (NGROK / LOCAL)
-const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
+
+// ===============================
+// API
+// ===============================
+const API = "https://unreproached-subangularly-christopher.ngrok-free.dev";
 
 // =========================
 // UTILS
