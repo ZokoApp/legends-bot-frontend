@@ -4,16 +4,25 @@ const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
 
-const user = window.LEGENDS_USER;
+// ===============================
+// SESIÓN
+// ===============================
+const rawUser = localStorage.getItem("legends_user");
 
-if (user.rol !== "admin") {
-  document.querySelectorAll(".only-admin").forEarch(el => el.remove());
-}
-
-if (!user) {
+if (!rawUser) {
   window.location.href = "login.html";
 }
 
+const user = JSON.parse(rawUser);
+
+// ===============================
+// CONTROL DE ROL
+// ===============================
+if (user.rol !== "admin") {
+  document
+    .querySelectorAll(".only-admin")
+    .forEach(el => el.remove());
+}
 // ⚠️ TU API (NGROK / LOCAL)
 const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
