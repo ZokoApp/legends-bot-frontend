@@ -1,4 +1,9 @@
 // ===============================
+// API (⚠️ DEBE IR PRIMERO)
+// ===============================
+const API = "https://unreproached-subangularly-christopher.ngrok-free.dev";
+
+// ===============================
 // ELEMENTOS
 // ===============================
 const btnRun = document.getElementById("btnRun");
@@ -10,34 +15,24 @@ const output = document.getElementById("output");
 // SESIÓN
 // ===============================
 const rawUser = localStorage.getItem("legends_user");
-
-if (!rawUser) {
-  window.location.href = "login.html";
-}
-
+if (!rawUser) window.location.href = "login.html";
 const user = JSON.parse(rawUser);
 
 // ===============================
 // CONTROL ADMIN
 // ===============================
 if (user.rol !== "admin") {
-  document
-    .querySelectorAll(".only-admin")
-    .forEach(el => el.remove());
+  document.querySelectorAll(".only-admin").forEach(el => el.remove());
 }
-
 
 // ===============================
 // ADMIN — SUBIR EXCEL
 // ===============================
-
 const btnUploadExcel = document.getElementById("btnUploadExcel");
 const excelInput = document.getElementById("excelInput");
 
 if (btnUploadExcel && excelInput) {
-  btnUploadExcel.addEventListener("click", () => {
-    excelInput.click(); // 🔥 abre el selector
-  });
+  btnUploadExcel.addEventListener("click", () => excelInput.click());
 
   excelInput.addEventListener("change", async () => {
     const file = excelInput.files[0];
@@ -51,13 +46,16 @@ if (btnUploadExcel && excelInput) {
     try {
       const res = await fetch(`${API}/admin/subir-excel`, {
         method: "POST",
+        headers: {
+          "ngrok-skip-browser-warning": "true"
+        },
         body: formData
       });
 
       const data = await res.json();
 
-      if (!data.ok) {
-        throw new Error(data.msg || "Error al subir Excel");
+      if (!res.ok || !data.ok) {
+        throw new Error(data.msg || data.error || "Error al subir Excel");
       }
 
       output.innerText =
@@ -65,20 +63,14 @@ if (btnUploadExcel && excelInput) {
         `Total ventas: ${data.totalVentas}`;
 
       statusText.innerText = "✅ Excel procesado";
-
     } catch (err) {
       statusText.innerText = "❌ Error";
       output.innerText = err.message;
     }
 
-    excelInput.value = ""; // reset
+    excelInput.value = "";
   });
 }
-
-// ===============================
-// API
-// ===============================
-const API = "https://unreproached-subangularly-christopher.ngrok-free.dev";
 
 // =========================
 // UTILS
@@ -119,9 +111,7 @@ btnRun.addEventListener("click", async () => {
   try {
     let pollUrl = null;
 
-    // =========================
     // FACTIBILIDAD POR DIRECCIÓN
-    // =========================
     if (mode === "factibilidad") {
       if (!direccion || !comuna) {
         setStatus("🔴 Falta dirección o comuna");
@@ -137,15 +127,13 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar factibilidad");
-
       const data = await start.json();
+      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad");
+
       pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
-    // =========================
     // VALIDACIÓN (ESTADO RUT)
-    // =========================
     if (mode === "validacion") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -161,15 +149,13 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar validación RUT");
-
       const data = await start.json();
+      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar validación RUT");
+
       pollUrl = `${API}/estado-rut/${data.jobId}`;
     }
 
-    // =========================
     // FACTIBILIDAD POR RUT
-    // =========================
     if (mode === "factibilidad_rut") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -185,15 +171,13 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar factibilidad por RUT");
-
       const data = await start.json();
+      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad por RUT");
+
       pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
     }
 
-    // =========================
-    // 🧾 BOLETA / FACTURA
-    // =========================
+    // BOLETA / FACTURA
     if (mode === "boleta") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -209,9 +193,9 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      if (!start.ok) throw new Error("No se pudo iniciar búsqueda de boleta");
-
       const data = await start.json();
+      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar búsqueda de boleta");
+
       pollUrl = `${API}/boleta/${data.jobId}`;
     }
 
@@ -222,9 +206,7 @@ btnRun.addEventListener("click", async () => {
 
     setStatus("🟡 Ejecutando en Legends…");
 
-    // =========================
     // POLLING
-    // =========================
     while (true) {
       await sleep(2000);
 
@@ -232,9 +214,10 @@ btnRun.addEventListener("click", async () => {
         headers: { "ngrok-skip-browser-warning": "true" }
       });
 
-      if (!poll.ok) throw new Error("Error consultando estado");
-
       const result = await poll.json();
+      if (!poll.ok || !result.ok) {
+        throw new Error(result.msg || result.error || "Error consultando estado");
+      }
 
       if (result.status === "queued") {
         setStatus("🟠 En cola…");
@@ -252,9 +235,6 @@ btnRun.addEventListener("click", async () => {
         return;
       }
 
-      // =========================
-      // FINALIZADO
-      // =========================
       if (result.status === "done") {
         setStatus("🟢 Finalizado");
 
@@ -266,7 +246,7 @@ btnRun.addEventListener("click", async () => {
           output.appendChild(pre);
         }
 
-        // IMAGEN (Cloudinary)
+        // IMAGEN
         if (result.capturaUrl) {
           const img = document.createElement("img");
           img.src = result.capturaUrl + "?t=" + Date.now();
@@ -278,7 +258,7 @@ btnRun.addEventListener("click", async () => {
           output.appendChild(img);
         }
 
-        // PDF BOLETA
+        // PDF
         if (result.pdfUrl) {
           const a = document.createElement("a");
           a.href = result.pdfUrl;
@@ -306,7 +286,6 @@ btnRun.addEventListener("click", async () => {
         return;
       }
     }
-
   } catch (e) {
     setStatus("🔴 Error");
     output.textContent = e.message;
