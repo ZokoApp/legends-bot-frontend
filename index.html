@@ -27,7 +27,6 @@
       border-radius: 20px;
       padding: 26px 22px 28px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-      margin-bottom: 20px;
     }
     .field { margin-bottom: 18px; }
     .field label {
@@ -93,27 +92,7 @@
 </head>
 
 <body>
-
-
-
 <div class="container">
-
-  <!-- 🔒 PANEL SOLO ADMIN -->
-  <div class="card only-admin">
-    <h3 style="margin-top:0;">Panel Administrador</h3>
-    <button id="btnUploadExcel" class="btn-primary">
-      📊 Subir Excel de Ventas
-    </button>
-  </div>
-
-  <input
-  type="file"
-  id="excelInput"
-  accept=".xlsx,.xls"
-  style="display:none"
-/>
-
-  <!-- 🧠 PANEL OPERATIVO -->
   <div class="card">
 
     <div class="field">
@@ -127,11 +106,11 @@
     <div class="field">
       <label>MODO</label>
       <select id="mode">
-        <option value="factibilidad">Factibilidad</option>
-        <option value="validacion">Estado de Venta</option>
-        <option value="factibilidad_rut">Factibilidad por RUT</option>
-        <option value="boleta">Boleta / Factura</option>
-      </select>
+      <option value="factibilidad">Factibilidad</option>
+      <option value="validacion">Validación</option>
+      <option value="factibilidad_rut">Factibilidad por RUT</option>
+      <option value="boleta">Boleta / Factura</option>
+    </select>
     </div>
 
     <div class="field">
@@ -175,14 +154,33 @@
   align-items:center;
   flex-direction:column;
 ">
-  <img id="modalImg" style="max-width:95%; max-height:80%; border-radius:12px;">
+  <img id="modalImg" style="
+    max-width:95%;
+    max-height:80%;
+    border-radius:12px;
+  ">
 
   <div style="margin-top:14px; display:flex; gap:12px;">
-    <button id="btnPdf" class="btn-primary">📄 Descargar PDF</button>
-    <button onclick="closeImgModal()" class="btn-secondary">✖ Cerrar</button>
+    <button id="btnPdf" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      background:#2563eb;
+      color:white;
+      font-weight:600;
+    ">📄 Descargar PDF</button>
+
+    <button onclick="closeImgModal()" style="
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid #555;
+      background:transparent;
+      color:#ccc;
+    ">✖ Cerrar</button>
   </div>
 </div>
 
+<!-- LIBS PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
