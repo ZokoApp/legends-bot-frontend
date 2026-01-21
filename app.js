@@ -26,6 +26,34 @@ if (user.rol !== "admin") {
 }
 
 // ===============================
+// UTILS
+// ===============================
+function sleep(ms) {
+  return new Promise(res => setTimeout(res, ms));
+}
+
+function setStatus(text) {
+  statusText.textContent = text;
+}
+
+function clearOutput() {
+  output.innerHTML = "";
+}
+
+// Lee JSON de forma segura (si viene HTML/texto, devuelve texto y lanza error claro)
+async function safeJson(res) {
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  if (ct.includes("application/json")) return await res.json();
+
+  const text = await res.text();
+  // ngrok caído / backend apagado / error HTML
+  throw new Error(
+    `Respuesta no-JSON (${res.status}). ` +
+    `Probable ngrok/backend caído. Detalle: ${text.slice(0, 160)}`
+  );
+}
+
+// ===============================
 // ADMIN — SUBIR EXCEL
 // ===============================
 const btnUploadExcel = document.getElementById("btnUploadExcel");
@@ -41,18 +69,16 @@ if (btnUploadExcel && excelInput) {
     const formData = new FormData();
     formData.append("archivo", file);
 
-    statusText.innerText = "⏳ Subiendo Excel...";
+    setStatus("⏳ Subiendo Excel...");
 
     try {
       const res = await fetch(`${API}/admin/subir-excel`, {
         method: "POST",
-        headers: {
-          "ngrok-skip-browser-warning": "true"
-        },
+        headers: { "ngrok-skip-browser-warning": "true" },
         body: formData
       });
 
-      const data = await res.json();
+      const data = await safeJson(res);
 
       if (!res.ok || !data.ok) {
         throw new Error(data.msg || data.error || "Error al subir Excel");
@@ -60,31 +86,16 @@ if (btnUploadExcel && excelInput) {
 
       output.innerText =
         `✅ Excel cargado correctamente\n` +
-        `Total ventas: ${data.totalVentas}`;
+        `Total ventas: ${data.totalVentas ?? "N/D"}`;
 
-      statusText.innerText = "✅ Excel procesado";
+      setStatus("✅ Excel procesado");
     } catch (err) {
-      statusText.innerText = "❌ Error";
+      setStatus("❌ Error");
       output.innerText = err.message;
     }
 
     excelInput.value = "";
   });
-}
-
-// =========================
-// UTILS
-// =========================
-function sleep(ms) {
-  return new Promise(res => setTimeout(res, ms));
-}
-
-function setStatus(text) {
-  statusText.textContent = text;
-}
-
-function clearOutput() {
-  output.innerHTML = "";
 }
 
 // =========================
@@ -127,7 +138,7 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      const data = await start.json();
+      const data = await safeJson(start);
       if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad");
 
       pollUrl = `${API}/factibilidad/${data.jobId}`;
@@ -149,7 +160,7 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await start.json();
+      const data = await safeJson(start);
       if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar validación RUT");
 
       pollUrl = `${API}/estado-rut/${data.jobId}`;
@@ -171,7 +182,7 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await start.json();
+      const data = await safeJson(start);
       if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad por RUT");
 
       pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
@@ -193,7 +204,7 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await start.json();
+      const data = await safeJson(start);
       if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar búsqueda de boleta");
 
       pollUrl = `${API}/boleta/${data.jobId}`;
@@ -206,15 +217,24 @@ btnRun.addEventListener("click", async () => {
 
     setStatus("🟡 Ejecutando en Legends…");
 
-    // POLLING
+    // =========================
+    // POLLING con timeout
+    // =========================
+    const startTime = Date.now();
+    const TIMEOUT_MS = 240000; // 4 min
+
     while (true) {
+      if (Date.now() - startTime > TIMEOUT_MS) {
+        throw new Error("Timeout esperando resultado (4 min). Revisá ngrok/backend/AHK.");
+      }
+
       await sleep(2000);
 
       const poll = await fetch(pollUrl, {
         headers: { "ngrok-skip-browser-warning": "true" }
       });
 
-      const result = await poll.json();
+      const result = await safeJson(poll);
       if (!poll.ok || !result.ok) {
         throw new Error(result.msg || result.error || "Error consultando estado");
       }
@@ -244,6 +264,8 @@ btnRun.addEventListener("click", async () => {
           pre.textContent = result.resultado;
           pre.style.whiteSpace = "pre-wrap";
           output.appendChild(pre);
+        } else {
+          output.textContent = "ℹ️ Sin resultado en texto";
         }
 
         // IMAGEN
