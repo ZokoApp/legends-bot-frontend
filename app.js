@@ -1,33 +1,11 @@
-// ===============================
-// API (⚠️ DEBE IR PRIMERO)
-// ===============================
-const API = "https://unreproached-subangularly-christopher.ngrok-free.dev";
-
-// ===============================
-// ELEMENTOS
-// ===============================
-const btnRun = document.getElementById("btnRun");
-const btnClear = document.getElementById("btnClear");
-const statusText = document.getElementById("statusText");
 const output = document.getElementById("output");
 
-// ===============================
-// SESIÓN
-// ===============================
-const rawUser = localStorage.getItem("legends_user");
-if (!rawUser) window.location.href = "login.html";
-const user = JSON.parse(rawUser);
+// ⚠️ TU API (NGROK / LOCAL)
+const API = "https://subpreputial-hypersuggestible-leonie.ngrok-free.dev";
 
-// ===============================
-// CONTROL ADMIN
-// ===============================
-if (user.rol !== "admin") {
-  document.querySelectorAll(".only-admin").forEach(el => el.remove());
-}
-
-// ===============================
+// =========================
 // UTILS
-// ===============================
+// =========================
 function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
@@ -38,64 +16,6 @@ function setStatus(text) {
 
 function clearOutput() {
   output.innerHTML = "";
-}
-
-// Lee JSON de forma segura (si viene HTML/texto, devuelve texto y lanza error claro)
-async function safeJson(res) {
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-  if (ct.includes("application/json")) return await res.json();
-
-  const text = await res.text();
-  // ngrok caído / backend apagado / error HTML
-  throw new Error(
-    `Respuesta no-JSON (${res.status}). ` +
-    `Probable ngrok/backend caído. Detalle: ${text.slice(0, 160)}`
-  );
-}
-
-// ===============================
-// ADMIN — SUBIR EXCEL
-// ===============================
-const btnUploadExcel = document.getElementById("btnUploadExcel");
-const excelInput = document.getElementById("excelInput");
-
-if (btnUploadExcel && excelInput) {
-  btnUploadExcel.addEventListener("click", () => excelInput.click());
-
-  excelInput.addEventListener("change", async () => {
-    const file = excelInput.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("archivo", file);
-
-    setStatus("⏳ Subiendo Excel...");
-
-    try {
-      const res = await fetch(`${API}/admin/subir-excel`, {
-        method: "POST",
-        headers: { "ngrok-skip-browser-warning": "true" },
-        body: formData
-      });
-
-      const data = await safeJson(res);
-
-      if (!res.ok || !data.ok) {
-        throw new Error(data.msg || data.error || "Error al subir Excel");
-      }
-
-      output.innerText =
-        `✅ Excel cargado correctamente\n` +
-        `Total ventas: ${data.totalVentas ?? "N/D"}`;
-
-      setStatus("✅ Excel procesado");
-    } catch (err) {
-      setStatus("❌ Error");
-      output.innerText = err.message;
-    }
-
-    excelInput.value = "";
-  });
 }
 
 // =========================
@@ -122,7 +42,9 @@ btnRun.addEventListener("click", async () => {
   try {
     let pollUrl = null;
 
+    // =========================
     // FACTIBILIDAD POR DIRECCIÓN
+    // =========================
     if (mode === "factibilidad") {
       if (!direccion || !comuna) {
         setStatus("🔴 Falta dirección o comuna");
@@ -138,13 +60,15 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ direccion, comuna, company })
       });
 
-      const data = await safeJson(start);
-      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad");
+      if (!start.ok) throw new Error("No se pudo iniciar factibilidad");
 
+      const data = await start.json();
       pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
+    // =========================
     // VALIDACIÓN (ESTADO RUT)
+    // =========================
     if (mode === "validacion") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -160,13 +84,15 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await safeJson(start);
-      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar validación RUT");
+      if (!start.ok) throw new Error("No se pudo iniciar validación RUT");
 
+      const data = await start.json();
       pollUrl = `${API}/estado-rut/${data.jobId}`;
     }
 
+    // =========================
     // FACTIBILIDAD POR RUT
+    // =========================
     if (mode === "factibilidad_rut") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -182,13 +108,15 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await safeJson(start);
-      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar factibilidad por RUT");
+      if (!start.ok) throw new Error("No se pudo iniciar factibilidad por RUT");
 
+      const data = await start.json();
       pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
     }
 
-    // BOLETA / FACTURA
+    // =========================
+    // 🧾 BOLETA / FACTURA
+    // =========================
     if (mode === "boleta") {
       if (!rut) {
         setStatus("🔴 Falta el RUT");
@@ -204,9 +132,9 @@ btnRun.addEventListener("click", async () => {
         body: JSON.stringify({ rut, company })
       });
 
-      const data = await safeJson(start);
-      if (!start.ok || !data.ok) throw new Error(data.msg || "No se pudo iniciar búsqueda de boleta");
+      if (!start.ok) throw new Error("No se pudo iniciar búsqueda de boleta");
 
+      const data = await start.json();
       pollUrl = `${API}/boleta/${data.jobId}`;
     }
 
@@ -218,26 +146,18 @@ btnRun.addEventListener("click", async () => {
     setStatus("🟡 Ejecutando en Legends…");
 
     // =========================
-    // POLLING con timeout
+    // POLLING
     // =========================
-    const startTime = Date.now();
-    const TIMEOUT_MS = 240000; // 4 min
-
     while (true) {
-      if (Date.now() - startTime > TIMEOUT_MS) {
-        throw new Error("Timeout esperando resultado (4 min). Revisá ngrok/backend/AHK.");
-      }
-
       await sleep(2000);
 
       const poll = await fetch(pollUrl, {
         headers: { "ngrok-skip-browser-warning": "true" }
       });
 
-      const result = await safeJson(poll);
-      if (!poll.ok || !result.ok) {
-        throw new Error(result.msg || result.error || "Error consultando estado");
-      }
+      if (!poll.ok) throw new Error("Error consultando estado");
+
+      const result = await poll.json();
 
       if (result.status === "queued") {
         setStatus("🟠 En cola…");
@@ -255,6 +175,9 @@ btnRun.addEventListener("click", async () => {
         return;
       }
 
+      // =========================
+      // FINALIZADO
+      // =========================
       if (result.status === "done") {
         setStatus("🟢 Finalizado");
 
@@ -264,11 +187,9 @@ btnRun.addEventListener("click", async () => {
           pre.textContent = result.resultado;
           pre.style.whiteSpace = "pre-wrap";
           output.appendChild(pre);
-        } else {
-          output.textContent = "ℹ️ Sin resultado en texto";
         }
 
-        // IMAGEN
+        // IMAGEN (Cloudinary)
         if (result.capturaUrl) {
           const img = document.createElement("img");
           img.src = result.capturaUrl + "?t=" + Date.now();
@@ -280,7 +201,7 @@ btnRun.addEventListener("click", async () => {
           output.appendChild(img);
         }
 
-        // PDF
+        // PDF BOLETA
         if (result.pdfUrl) {
           const a = document.createElement("a");
           a.href = result.pdfUrl;
@@ -308,6 +229,7 @@ btnRun.addEventListener("click", async () => {
         return;
       }
     }
+
   } catch (e) {
     setStatus("🔴 Error");
     output.textContent = e.message;
