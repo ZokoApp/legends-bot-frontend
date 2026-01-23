@@ -115,6 +115,30 @@ btnRun.addEventListener("click", async () => {
     }
 
     // =========================
+// 📅 AGENDA
+// =========================
+if (mode === "agenda") {
+  if (!rut) {
+    setStatus("🔴 Falta el RUT");
+    return;
+  }
+
+  const start = await fetch(`${API}/agenda`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({ rut, company })
+  });
+
+  if (!start.ok) throw new Error("No se pudo iniciar agenda");
+
+  const data = await start.json();
+  pollUrl = `${API}/agenda/${data.jobId}`;
+}
+
+    // =========================
     // 🧾 BOLETA / FACTURA
     // =========================
     if (mode === "boleta") {
