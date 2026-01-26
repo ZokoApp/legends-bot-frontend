@@ -1,98 +1,115 @@
+// =========================
+// CONFIG
+// =========================
 const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
 let lastImageUrl = "";
 let lastTextResult = "";
 
-// HISTORIAL
-function getHistory(){
+// =========================
+// HISTORIAL (Nivel 1)
+// =========================
+function getHistory() {
   return JSON.parse(localStorage.getItem("legends_history") || "[]");
 }
 
-function saveHistory(item){
-  const h = getHistory();
-  h.unshift(item);
-  if(h.length > 20) h.pop();
-  localStorage.setItem("legends_history", JSON.stringify(h));
+function saveHistory(item) {
+  const history = getHistory();
+  history.unshift(item);
+  if (history.length > 20) history.pop();
+  localStorage.setItem("legends_history", JSON.stringify(history));
 }
 
-function openHistory(){
+function openHistory() {
   const list = document.getElementById("historyList");
   const history = getHistory();
   list.innerHTML = "";
 
-  if(history.length === 0){
+  if (history.length === 0) {
     list.innerHTML = "<p style='color:#888'>Sin consultas aún</p>";
-  } else {
-    history.forEach((h,i)=>{
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <strong>${h.fecha}</strong><br>
-        ${h.modo}<br>
-        ${h.datos.direccion || h.datos.rut || ""}<br>
-        <button onclick="viewHistory(${i})">Ver</button>
-        <button onclick="repeatHistory(${i})">Repetir</button>
-        <hr>
-      `;
-      list.appendChild(div);
-    });
+    document.getElementById("historyModal").style.display = "flex";
+    return;
   }
 
-  historyModal.style.display = "flex";
+  history.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.style.marginBottom = "12px";
+    div.innerHTML = `
+      <strong>${h.fecha}</strong><br>
+      ${h.modo}<br>
+      ${h.datos.direccion || h.datos.rut || ""}<br>
+      <button onclick="viewHistory(${i})">Ver</button>
+      <button onclick="repeatHistory(${i})">Repetir</button>
+      <hr>
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById("historyModal").style.display = "flex";
 }
 
-function closeHistory(){
-  historyModal.style.display = "none";
+function closeHistory() {
+  document.getElementById("historyModal").style.display = "none";
 }
 
-function viewHistory(i){
+function viewHistory(i) {
   const h = getHistory()[i];
   openResultModal(h.resultado, h.imagen);
 }
 
-function repeatHistory(i){
+function repeatHistory(i) {
   const h = getHistory()[i];
+
   document.getElementById("company").value = h.datos.company;
   document.getElementById("mode").value = h.modo;
   document.getElementById("address").value = h.datos.direccion || "";
   document.getElementById("comuna").value = h.datos.comuna || "";
   document.getElementById("rut").value = h.datos.rut || "";
+
   closeHistory();
 }
 
-// RESULTADOS
-function openResultModal(text, img){
+// =========================
+// MODAL RESULTADO
+// =========================
+function openResultModal(text, imageUrl) {
   lastTextResult = text || "";
-  lastImageUrl = img || "";
-  modalText.innerText = lastTextResult;
-  modalImg.src = lastImageUrl;
-  resultModal.style.display = "flex";
+  lastImageUrl = imageUrl || "";
+
+  document.getElementById("modalText").innerText = lastTextResult;
+  document.getElementById("modalImg").src = lastImageUrl || "";
+  document.getElementById("resultModal").style.display = "flex";
 }
 
-function closeResultModal(){
-  resultModal.style.display = "none";
+function closeResultModal() {
+  document.getElementById("resultModal").style.display = "none";
 }
 
-function shareWhatsApp(){
+function shareWhatsApp() {
   let msg = lastTextResult;
-  if(lastImageUrl) msg += "\n\n📸 " + lastImageUrl;
-  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+  if (lastImageUrl) {
+    msg += "\n\n📸 Captura:\n" + lastImageUrl;
+  }
+  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
 }
 
-async function downloadPDF(){
+async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
+
   const lines = pdf.splitTextToSize(lastTextResult, 180);
   pdf.text(lines, 10, 10);
 
   let y = 10 + lines.length * 6 + 10;
 
-  if(lastImageUrl){
+  if (lastImageUrl) {
     const imgData = await fetch(lastImageUrl)
       .then(r => r.blob())
-      .then(b => new Promise(res=>{
-        const fr = new FileReader();
-        fr.onload = () => res(fr.result);
-        fr.readAsDataURL(b);
+      .then(b => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(b);
       }));
 
     pdf.addImage(imgData, "PNG", 10, y, 180, 100);
@@ -101,84 +118,123 @@ async function downloadPDF(){
   pdf.save("resultado_legends_bot.pdf");
 }
 
-// EJECUCIÓN
-btnRun.onclick = async () => {
+// =========================
+// UTILS
+// =========================
+function sleep(ms) {
+  return new Promise(res => setTimeout(res, ms));
+}
 
-  const companyValue   = document.getElementById("company").value;
-  const modeValue      = document.getElementById("mode").value;
+function setStatus(text) {
+  statusText.textContent = text;
+}
+
+// =========================
+// LIMPIAR
+// =========================
+btnClear.addEventListener("click", () => {
+  setStatus("🟢 Listo — conectado a la API");
+});
+
+// =========================
+// EJECUTAR
+// =========================
+btnRun.addEventListener("click", async () => {
+
+  const companyValue = document.getElementById("company").value;
+  const modeValue = document.getElementById("mode").value;
   const direccionValue = document.getElementById("address").value.trim();
-  const comunaValue    = document.getElementById("comuna").value.trim();
-  const rutValue       = document.getElementById("rut").value.trim();
+  const comunaValue = document.getElementById("comuna").value.trim();
+  const rutValue = document.getElementById("rut").value.trim();
 
   setStatus("⏳ Enviando consulta…");
 
-  try{
+  try {
     let pollUrl = null;
 
-    if(modeValue === "factibilidad"){
-      if(!direccionValue || !comunaValue) return setStatus("🔴 Falta dirección");
-      const r = await fetch(`${API}/factibilidad`,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ direccion:direccionValue, comuna:comunaValue, company:companyValue })
+    if (modeValue === "factibilidad") {
+      if (!direccionValue || !comunaValue) {
+        setStatus("🔴 Falta dirección o comuna");
+        return;
+      }
+
+      const start = await fetch(`${API}/factibilidad`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        body: JSON.stringify({ direccion: direccionValue, comuna: comunaValue, company: companyValue })
       });
-      const d = await r.json();
-      pollUrl = `${API}/factibilidad/${d.jobId}`;
+
+      const data = await start.json();
+      pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
-    if(modeValue === "validacion"){
-      if(!rutValue) return setStatus("🔴 Falta RUT");
-      const r = await fetch(`${API}/estado-rut`,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ rut:rutValue, company:companyValue })
+    if (modeValue === "validacion") {
+      if (!rutValue) return setStatus("🔴 Falta el RUT");
+
+      const start = await fetch(`${API}/estado-rut`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        body: JSON.stringify({ rut: rutValue, company: companyValue })
       });
-      const d = await r.json();
-      pollUrl = `${API}/estado-rut/${d.jobId}`;
+
+      const data = await start.json();
+      pollUrl = `${API}/estado-rut/${data.jobId}`;
     }
 
-    if(modeValue === "agenda"){
-      const r = await fetch(`${API}/agenda`,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ rut:rutValue, company:companyValue })
+    if (modeValue === "agenda") {
+      if (!rutValue) return setStatus("🔴 Falta el RUT");
+
+      const start = await fetch(`${API}/agenda`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        body: JSON.stringify({ rut: rutValue, company: companyValue })
       });
-      const d = await r.json();
-      pollUrl = `${API}/agenda/${d.jobId}`;
+
+      const data = await start.json();
+      pollUrl = `${API}/agenda/${data.jobId}`;
     }
 
-    setStatus("🟡 Ejecutando…");
+    if (!pollUrl) return setStatus("🔴 Modo inválido");
 
-    while(true){
-      await new Promise(r=>setTimeout(r,2000));
-      const poll = await fetch(pollUrl);
-      const res = await poll.json();
+    setStatus("🟡 Ejecutando en Legends…");
 
-      if(res.status === "done"){
+    while (true) {
+      await sleep(2000);
+      const poll = await fetch(pollUrl, { headers: { "ngrok-skip-browser-warning": "true" } });
+      const result = await poll.json();
+
+      if (result.status === "queued") continue;
+      if (result.status === "running") continue;
+
+      if (result.status === "error") {
+        setStatus("🔴 Error");
+        openResultModal(result.error || "Error desconocido", "");
+        return;
+      }
+
+      if (result.status === "done") {
+        setStatus("🟢 Finalizado");
+
         saveHistory({
-          fecha:new Date().toLocaleString(),
-          modo:modeValue,
-          datos:{
-            direccion:direccionValue,
-            comuna:comunaValue,
-            rut:rutValue,
-            company:companyValue
+          fecha: new Date().toLocaleString(),
+          modo: modeValue,
+          datos: {
+            direccion: direccionValue,
+            comuna: comunaValue,
+            rut: rutValue,
+            company: companyValue
           },
-          resultado:res.resultado,
-          imagen:res.capturaUrl
+          resultado: result.resultado || "",
+          imagen: result.capturaUrl || ""
         });
 
-        setStatus("🟢 Finalizado");
-        openResultModal(res.resultado, res.capturaUrl);
+        openResultModal(result.resultado, result.capturaUrl);
         return;
       }
     }
 
-  } catch(e){
+  } catch (e) {
     setStatus("🔴 Error");
     openResultModal(e.message, "");
   }
-};
-
-btnClear.onclick = () => setStatus("🟢 Listo — conectado a la API");
-function setStatus(t){ statusText.innerText = t; }
+});
