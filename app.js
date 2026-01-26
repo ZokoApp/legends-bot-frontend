@@ -7,7 +7,68 @@ let lastImageUrl = "";
 let lastTextResult = "";
 
 // =========================
-// MODAL FUNCTIONS
+// HISTORIAL (Nivel 1)
+// =========================
+function getHistory() {
+  return JSON.parse(localStorage.getItem("legends_history") || "[]");
+}
+
+function saveHistory(item) {
+  const history = getHistory();
+  history.unshift(item);
+  if (history.length > 20) history.pop();
+  localStorage.setItem("legends_history", JSON.stringify(history));
+}
+
+function openHistory() {
+  const list = document.getElementById("historyList");
+  const history = getHistory();
+  list.innerHTML = "";
+
+  if (history.length === 0) {
+    list.innerHTML = "<p style='color:#888'>Sin consultas aún</p>";
+    document.getElementById("historyModal").style.display = "flex";
+    return;
+  }
+
+  history.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.style.marginBottom = "12px";
+    div.innerHTML = `
+      <strong>${h.fecha}</strong><br>
+      ${h.modo}<br>
+      ${h.datos.direccion || h.datos.rut || ""}<br>
+      <button onclick="viewHistory(${i})">Ver</button>
+      <button onclick="repeatHistory(${i})">Repetir</button>
+      <hr>
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById("historyModal").style.display = "flex";
+}
+
+function closeHistory() {
+  document.getElementById("historyModal").style.display = "none";
+}
+
+function viewHistory(i) {
+  const h = getHistory()[i];
+  openResultModal(h.resultado, h.imagen);
+}
+
+function repeatHistory(i) {
+  const h = getHistory()[i];
+  company.value = h.datos.company;
+  mode.value = h.modo;
+  address.value = h.datos.direccion || "";
+  comuna.value = h.datos.comuna || "";
+  rut.value = h.datos.rut || "";
+  closeHistory();
+}
+
+// =========================
+// MODAL RESULTADO
 // =========================
 function openResultModal(text, imageUrl) {
   lastTextResult = text || "";
@@ -24,11 +85,9 @@ function closeResultModal() {
 
 function shareWhatsApp() {
   let msg = lastTextResult;
-
   if (lastImageUrl) {
     msg += "\n\n📸 Captura:\n" + lastImageUrl;
   }
-
   const url = "https://wa.me/?text=" + encodeURIComponent(msg);
   window.open(url, "_blank");
 }
@@ -37,13 +96,11 @@ async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
-  // Texto
   const lines = pdf.splitTextToSize(lastTextResult, 180);
   pdf.text(lines, 10, 10);
 
   let y = 10 + lines.length * 6 + 10;
 
-  // Imagen
   if (lastImageUrl) {
     const imgData = await fetch(lastImageUrl)
       .then(r => r.blob())
@@ -92,9 +149,6 @@ btnRun.addEventListener("click", async () => {
   try {
     let pollUrl = null;
 
-    // =========================
-    // FACTIBILIDAD POR DIRECCIÓN
-    // =========================
     if (mode === "factibilidad") {
       if (!direccion || !comuna) {
         setStatus("🔴 Falta dirección o comuna");
@@ -103,10 +157,7 @@ btnRun.addEventListener("click", async () => {
 
       const start = await fetch(`${API}/factibilidad`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
         body: JSON.stringify({ direccion, comuna, company })
       });
 
@@ -114,21 +165,12 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/factibilidad/${data.jobId}`;
     }
 
-    // =========================
-    // VALIDACIÓN (ESTADO RUT)
-    // =========================
     if (mode === "validacion") {
-      if (!rut) {
-        setStatus("🔴 Falta el RUT");
-        return;
-      }
+      if (!rut) return setStatus("🔴 Falta el RUT");
 
       const start = await fetch(`${API}/estado-rut`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
         body: JSON.stringify({ rut, company })
       });
 
@@ -136,43 +178,12 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/estado-rut/${data.jobId}`;
     }
 
-    // =========================
-    // FACTIBILIDAD POR RUT
-    // =========================
-    if (mode === "factibilidad_rut") {
-      if (!rut) {
-        setStatus("🔴 Falta el RUT");
-        return;
-      }
-
-      const start = await fetch(`${API}/factibilidad-rut`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify({ rut, company })
-      });
-
-      const data = await start.json();
-      pollUrl = `${API}/factibilidad-rut/${data.jobId}`;
-    }
-
-    // =========================
-    // 📅 AGENDA
-    // =========================
     if (mode === "agenda") {
-      if (!rut) {
-        setStatus("🔴 Falta el RUT");
-        return;
-      }
+      if (!rut) return setStatus("🔴 Falta el RUT");
 
       const start = await fetch(`${API}/agenda`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
         body: JSON.stringify({ rut, company })
       });
 
@@ -180,56 +191,17 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/agenda/${data.jobId}`;
     }
 
-    // =========================
-    // 🧾 BOLETA
-    // =========================
-    if (mode === "boleta") {
-      if (!rut) {
-        setStatus("🔴 Falta el RUT");
-        return;
-      }
-
-      const start = await fetch(`${API}/boleta`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify({ rut, company })
-      });
-
-      const data = await start.json();
-      pollUrl = `${API}/boleta/${data.jobId}`;
-    }
-
-    if (!pollUrl) {
-      setStatus("🔴 Modo inválido");
-      return;
-    }
+    if (!pollUrl) return setStatus("🔴 Modo inválido");
 
     setStatus("🟡 Ejecutando en Legends…");
 
-    // =========================
-    // POLLING
-    // =========================
     while (true) {
       await sleep(2000);
-
-      const poll = await fetch(pollUrl, {
-        headers: { "ngrok-skip-browser-warning": "true" }
-      });
-
+      const poll = await fetch(pollUrl, { headers: { "ngrok-skip-browser-warning": "true" } });
       const result = await poll.json();
 
-      if (result.status === "queued") {
-        setStatus("🟠 En cola…");
-        continue;
-      }
-
-      if (result.status === "running") {
-        setStatus("🟡 Ejecutando en Legends…");
-        continue;
-      }
+      if (result.status === "queued") continue;
+      if (result.status === "running") continue;
 
       if (result.status === "error") {
         setStatus("🔴 Error");
@@ -237,11 +209,17 @@ btnRun.addEventListener("click", async () => {
         return;
       }
 
-      // =========================
-      // FINALIZADO
-      // =========================
       if (result.status === "done") {
         setStatus("🟢 Finalizado");
+
+        saveHistory({
+          fecha: new Date().toLocaleString(),
+          modo: mode,
+          datos: { direccion, comuna, rut, company },
+          resultado: result.resultado || "",
+          imagen: result.capturaUrl || ""
+        });
+
         openResultModal(result.resultado, result.capturaUrl);
         return;
       }
