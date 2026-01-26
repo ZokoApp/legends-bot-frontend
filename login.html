@@ -70,11 +70,6 @@
       color: #e5e7eb;
       font-size: 0.95rem;
       outline: none;
-      transition: box-shadow 0.2s ease;
-    }
-
-    .field input:focus {
-      box-shadow: 0 0 0 2px #2563eb;
     }
 
     .btn {
@@ -88,12 +83,6 @@
       font-size: 0.95rem;
       background: linear-gradient(135deg, #2563eb, #1e40af);
       color: #fff;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 25px rgba(37,99,235,0.4);
     }
 
     .error {
@@ -111,11 +100,6 @@
       color: #6b7280;
     }
   </style>
-
-  <!-- 🔥 FIREBASE SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -125,8 +109,8 @@
   <div class="subtitle">Acceso interno autorizado</div>
 
   <div class="field">
-    <label>Usuario</label>
-    <input id="email" type="email" placeholder="Ingresa Usuario">
+    <label>Email</label>
+    <input id="email" type="email" placeholder="usuario@legendsbot.com">
   </div>
 
   <div class="field">
@@ -139,74 +123,53 @@
   <div id="error" class="error"></div>
 
   <div class="footer">
-    ©️ Legends Bot · Sistema interno
+    © Legends Bot · Sistema interno
   </div>
 </div>
 
 <script>
-  // 🔥 REEMPLAZÁ ESTO CON TU CONFIG REAL DE FIREBASE
-  const firebaseConfig = {
-    apiKey: "AIzaSyCgXMspFGgVs_ySlo5IVA5lmy9er-DTaF0",
-    authDomain: "legends-bot-d127c.firebaseapp.com",
-    projectId: "legends-bot-d127c"
-  };
+const LOGIN_API = "PEGÁ_ACÁ_TU_URL_DEL_SCRIPT";
 
-  firebase.initializeApp(firebaseConfig);
+async function login() {
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const password = document.getElementById("password").value.trim();
+  const errorBox = document.getElementById("error");
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  errorBox.style.display = "none";
 
-  async function login() {
-    const email = document.getElementById("email").value.trim().toLowerCase();
-    const password = document.getElementById("password").value.trim();
-    const errorBox = document.getElementById("error");
-
-    errorBox.style.display = "none";
-
-    if (!email.endsWith("@legendsbot.com")) {
-      return showError("El email debe ser @legendsbot.com");
-    }
-
-    if (!password) {
-      return showError("Ingresá la contraseña");
-    }
-
-    try {
-      // 1️⃣ Login Firebase Auth
-      const cred = await auth.signInWithEmailAndPassword(email, password);
-      const uid = cred.user.uid;
-
-      // 2️⃣ Obtener rol desde Firestore
-      const doc = await db.collection("usuarios").doc(uid).get();
-
-      if (!doc.exists) {
-        throw new Error("Usuario sin permisos");
-      }
-
-      const data = doc.data();
-
-      // 3️⃣ Guardar sesión local (CLAVE)
-      localStorage.setItem("legends_user", JSON.stringify({
-        uid,
-        email,
-        rol: data.rol,
-        vendedor: data.vendedor || null
-      }));
-
-      // 4️⃣ Entrar al sistema
-      window.location.href = "index.html";
-
-    } catch (err) {
-      console.error(err);
-      showError("Acceso denegado");
-    }
+  if (!email || !password) {
+    return showError("Completá todos los campos");
   }
 
-  function showError(msg) {
-    const errorBox = document.getElementById("error");
-    errorBox.innerText = msg;
-    errorBox.style.display = "block";
+  try {
+    const res = await fetch(LOGIN_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      return showError(data.error || "Acceso denegado");
+    }
+
+    // Guardar sesión
+    localStorage.setItem("legends_user", JSON.stringify(data.user));
+
+    // Entrar a la app
+    window.location.href = "index.html";
+
+  } catch (err) {
+    showError("Error de conexión");
   }
+}
+
+function showError(msg) {
+  const errorBox = document.getElementById("error");
+  errorBox.innerText = msg;
+  errorBox.style.display = "block";
+}
 </script>
 
 </body>
