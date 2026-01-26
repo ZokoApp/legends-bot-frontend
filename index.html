@@ -209,5 +209,24 @@ window.location.href="login.html";
 </div>
 </div>
 
+  <!-- MODAL NOTA -->
+<div id="noteModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <strong>Nota</strong>
+      <button class="modal-close" onclick="closeNote()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <textarea id="noteText" style="width:100%;height:120px;background:#020617;color:white;border-radius:10px;padding:10px"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-pdf" onclick="saveNote()">Guardar</button>
+      <button class="btn-modal btn-close" onclick="closeNote()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
