@@ -5,9 +5,10 @@ const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
 let lastImageUrl = "";
 let lastTextResult = "";
+let currentNoteIndex = null;
 
 // =========================
-// HISTORIAL (Nivel 1)
+// HISTORIAL
 // =========================
 function getHistory() {
   return JSON.parse(localStorage.getItem("legends_history") || "[]");
@@ -16,7 +17,11 @@ function getHistory() {
 function saveHistory(item) {
   const history = getHistory();
   history.unshift(item);
-  if (history.length > 20) history.pop();
+  if (history.length > 30) history.pop();
+  localStorage.setItem("legends_history", JSON.stringify(history));
+}
+
+function updateHistory(history) {
   localStorage.setItem("legends_history", JSON.stringify(history));
 }
 
@@ -33,13 +38,15 @@ function openHistory() {
 
   history.forEach((h, i) => {
     const div = document.createElement("div");
-    div.style.marginBottom = "12px";
+    div.style.marginBottom = "14px";
     div.innerHTML = `
       <strong>${h.fecha}</strong><br>
       ${h.modo}<br>
       ${h.datos.direccion || h.datos.rut || ""}<br>
+      ${h.nota ? `<em>📝 ${h.nota}</em><br>` : ""}
       <button onclick="viewHistory(${i})">Ver</button>
       <button onclick="repeatHistory(${i})">Repetir</button>
+      <button onclick="editNote(${i})">Nota</button>
       <hr>
     `;
     list.appendChild(div);
@@ -59,14 +66,34 @@ function viewHistory(i) {
 
 function repeatHistory(i) {
   const h = getHistory()[i];
-
   document.getElementById("company").value = h.datos.company;
   document.getElementById("mode").value = h.modo;
   document.getElementById("address").value = h.datos.direccion || "";
   document.getElementById("comuna").value = h.datos.comuna || "";
   document.getElementById("rut").value = h.datos.rut || "";
-
   closeHistory();
+}
+
+// =========================
+// NOTAS (MODAL PRO)
+// =========================
+function editNote(i) {
+  const history = getHistory();
+  currentNoteIndex = i;
+  document.getElementById("noteText").value = history[i].nota || "";
+  document.getElementById("noteModal").style.display = "flex";
+}
+
+function saveNote() {
+  const history = getHistory();
+  history[currentNoteIndex].nota = document.getElementById("noteText").value.trim();
+  updateHistory(history);
+  closeNote();
+  openHistory();
+}
+
+function closeNote() {
+  document.getElementById("noteModal").style.display = "none";
 }
 
 // =========================
@@ -75,7 +102,6 @@ function repeatHistory(i) {
 function openResultModal(text, imageUrl) {
   lastTextResult = text || "";
   lastImageUrl = imageUrl || "";
-
   document.getElementById("modalText").innerText = lastTextResult;
   document.getElementById("modalImg").src = lastImageUrl || "";
   document.getElementById("resultModal").style.display = "flex";
@@ -87,20 +113,15 @@ function closeResultModal() {
 
 function shareWhatsApp() {
   let msg = lastTextResult;
-  if (lastImageUrl) {
-    msg += "\n\n📸 Captura:\n" + lastImageUrl;
-  }
-  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
-  window.open(url, "_blank");
+  if (lastImageUrl) msg += "\n\n📸 " + lastImageUrl;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 }
 
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
-
   const lines = pdf.splitTextToSize(lastTextResult, 180);
   pdf.text(lines, 10, 10);
-
   let y = 10 + lines.length * 6 + 10;
 
   if (lastImageUrl) {
@@ -111,7 +132,6 @@ async function downloadPDF() {
         reader.onload = () => res(reader.result);
         reader.readAsDataURL(b);
       }));
-
     pdf.addImage(imgData, "PNG", 10, y, 180, 100);
   }
 
@@ -153,14 +173,11 @@ btnRun.addEventListener("click", async () => {
     let pollUrl = null;
 
     if (modeValue === "factibilidad") {
-      if (!direccionValue || !comunaValue) {
-        setStatus("🔴 Falta dirección o comuna");
-        return;
-      }
+      if (!direccionValue || !comunaValue) return setStatus("🔴 Falta dirección o comuna");
 
       const start = await fetch(`${API}/factibilidad`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
         body: JSON.stringify({ direccion: direccionValue, comuna: comunaValue, company: companyValue })
       });
 
@@ -173,7 +190,7 @@ btnRun.addEventListener("click", async () => {
 
       const start = await fetch(`${API}/estado-rut`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
         body: JSON.stringify({ rut: rutValue, company: companyValue })
       });
 
@@ -186,7 +203,7 @@ btnRun.addEventListener("click", async () => {
 
       const start = await fetch(`${API}/agenda`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
         body: JSON.stringify({ rut: rutValue, company: companyValue })
       });
 
@@ -200,11 +217,10 @@ btnRun.addEventListener("click", async () => {
 
     while (true) {
       await sleep(2000);
-      const poll = await fetch(pollUrl, { headers: { "ngrok-skip-browser-warning": "true" } });
+      const poll = await fetch(pollUrl, { headers: {"ngrok-skip-browser-warning":"true"} });
       const result = await poll.json();
 
-      if (result.status === "queued") continue;
-      if (result.status === "running") continue;
+      if (result.status === "queued" || result.status === "running") continue;
 
       if (result.status === "error") {
         setStatus("🔴 Error");
@@ -218,14 +234,10 @@ btnRun.addEventListener("click", async () => {
         saveHistory({
           fecha: new Date().toLocaleString(),
           modo: modeValue,
-          datos: {
-            direccion: direccionValue,
-            comuna: comunaValue,
-            rut: rutValue,
-            company: companyValue
-          },
+          datos: { direccion: direccionValue, comuna: comunaValue, rut: rutValue, company: companyValue },
           resultado: result.resultado || "",
-          imagen: result.capturaUrl || ""
+          imagen: result.capturaUrl || "",
+          nota: ""
         });
 
         openResultModal(result.resultado, result.capturaUrl);
