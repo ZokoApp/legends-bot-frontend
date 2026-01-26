@@ -29,12 +29,30 @@
       max-width: 420px;
       margin: 0 auto;
       padding: 28px 20px 40px;
+      position: relative;
     }
     .card {
       background: rgba(255,255,255,0.04);
       border-radius: 20px;
       padding: 26px 22px 28px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .btn-logout{
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .btn-logout:hover{
+      background: rgba(0,0,0,0.55);
     }
     .field { margin-bottom: 18px; }
     .field label {
@@ -102,6 +120,8 @@
 <body>
 <div class="container">
   <div class="card">
+
+    <button id="btnLogout" class="btn-logout">Salir</button>
 
     <div class="field">
       <label>COMPAÑÍA</label>
@@ -194,5 +214,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script src="app.js"></script>
+
+<script>
+  function logout() {
+    localStorage.removeItem("legends_user");
+    window.location.href = "login.html";
+  }
+
+  document.getElementById("btnLogout").addEventListener("click", logout);
+</script>
 </body>
 </html>
