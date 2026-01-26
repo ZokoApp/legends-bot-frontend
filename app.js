@@ -23,15 +23,39 @@ function closeResultModal() {
 }
 
 function shareWhatsApp() {
-  const msg = encodeURIComponent(lastTextResult);
-  window.open(`https://wa.me/?text=${msg}`, "_blank");
+  let msg = lastTextResult;
+
+  if (lastImageUrl) {
+    msg += "\n\n📸 Captura:\n" + lastImageUrl;
+  }
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
 }
 
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
+
+  // Texto
   const lines = pdf.splitTextToSize(lastTextResult, 180);
   pdf.text(lines, 10, 10);
+
+  let y = 10 + lines.length * 6 + 10;
+
+  // Imagen
+  if (lastImageUrl) {
+    const imgData = await fetch(lastImageUrl)
+      .then(r => r.blob())
+      .then(b => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(b);
+      }));
+
+    pdf.addImage(imgData, "PNG", 10, y, 180, 100);
+  }
+
   pdf.save("resultado_legends_bot.pdf");
 }
 
