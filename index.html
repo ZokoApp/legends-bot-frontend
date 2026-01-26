@@ -7,12 +7,13 @@
 
   <!-- 🔐 CONTROL DE SESIÓN -->
   <script>
-    const user = localStorage.getItem("legends_user");
+    const user = JSON.parse(localStorage.getItem("legends_user"));
     if (!user) {
       window.location.href = "login.html";
     }
   </script>
 
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b1220">
 
@@ -24,49 +25,70 @@
       background: radial-gradient(circle at top, #0f172a, #020617);
       color: #e5e7eb;
     }
+
     .container {
       max-width: 420px;
       margin: 0 auto;
       padding: 28px 20px 40px;
     }
+
     .card {
       background: rgba(255,255,255,0.04);
       border-radius: 20px;
-      padding: 18px 22px 28px;
+      padding: 26px 22px 28px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
 
-    /* HEADER */
-    .header {
+    /* HEADER USUARIO */
+    .user-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      justify-content: space-between;
+      margin-bottom: 22px;
     }
-    .header span {
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-info img {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+    }
+
+    .user-name {
       font-size: 0.8rem;
       color: #9ca3af;
     }
+
+    .user-name strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
     .btn-logout {
-      padding: 6px 12px;
-      border-radius: 10px;
+      padding: 8px 14px;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.2);
       background: transparent;
-      color: #e5e7eb;
-      font-size: 0.7rem;
+      color: #9ca3af;
+      font-size: 0.75rem;
       cursor: pointer;
-    }
-    .btn-logout:hover {
-      background: rgba(255,255,255,0.1);
     }
 
     .field { margin-bottom: 18px; }
+
     .field label {
       display: block;
       font-size: 0.75rem;
       color: #9ca3af;
       margin-bottom: 6px;
     }
+
     .field input, .field select {
       width: 100%;
       padding: 14px;
@@ -76,11 +98,13 @@
       color: #e5e7eb;
       font-size: 0.9rem;
     }
+
     .actions {
       display: flex;
       gap: 12px;
       margin-top: 20px;
     }
+
     button {
       flex: 1;
       padding: 14px;
@@ -90,15 +114,18 @@
       font-weight: 600;
       font-size: 0.95rem;
     }
+
     .btn-primary {
       background: linear-gradient(135deg, #2563eb, #1e40af);
       color: #fff;
     }
+
     .btn-secondary {
       background: transparent;
       color: #9ca3af;
       border: 1px solid rgba(255,255,255,0.2);
     }
+
     .status {
       margin-top: 16px;
       font-size: 0.75rem;
@@ -106,12 +133,14 @@
       gap: 6px;
       align-items: center;
     }
+
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #22c55e;
     }
+
     pre {
       margin-top: 16px;
       background: #020617;
@@ -128,9 +157,16 @@
   <div class="card">
 
     <!-- HEADER -->
-    <div class="header">
-      <span id="userName"></span>
-      <button id="btnLogout" class="btn-logout">Salir</button>
+    <div class="user-header">
+      <div class="user-info">
+        <img src="icons/icon-192.png">
+        <div class="user-name">
+          <strong id="userName"></strong>
+          <span id="userRole"></span>
+        </div>
+      </div>
+
+      <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
 
     <div class="field">
@@ -185,14 +221,15 @@
 <script src="app.js"></script>
 
 <script>
-  const data = JSON.parse(localStorage.getItem("legends_user"));
-  document.getElementById("userName").innerText =
-    data.nombre + " (" + data.rol + ")";
+  // Pintar datos del usuario
+  document.getElementById("userName").innerText = user.nombre;
+  document.getElementById("userRole").innerText = user.rol;
 
-  document.getElementById("btnLogout").onclick = () => {
+  function logout() {
     localStorage.removeItem("legends_user");
     window.location.href = "login.html";
-  };
+  }
 </script>
+
 </body>
 </html>
