@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Legends Bot – Producción</title>
 
+  <!-- 🔐 CONTROL DE SESIÓN -->
+  <script>
+    const user = localStorage.getItem("legends_user");
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b1220">
