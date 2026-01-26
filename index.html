@@ -1,348 +1,211 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Legends Bot – Producción</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Legends Bot – Producción</title>
 
-  <!-- 🔐 CONTROL DE SESIÓN -->
-  <script>
-    const user = JSON.parse(localStorage.getItem("legends_user"));
-    if (!user) {
-      window.location.href = "login.html";
-    }
-  </script>
+<script>
+const user = JSON.parse(localStorage.getItem("legends_user"));
+if (!user) window.location.href = "login.html";
+</script>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617);
-      color: #e5e7eb;
-    }
-
-    .container {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 28px 20px 40px;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.04);
-      border-radius: 20px;
-      padding: 26px 22px 28px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    }
-
-    /* HEADER USUARIO */
-    .user-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 22px;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:system-ui;
+background:radial-gradient(circle at top,#0f172a,#020617);
+color:#e5e7eb;
 }
 
-.modal-card {
-  width: 95%;
-  max-width: 520px;
-  background: #020617;
-  border-radius: 20px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
+/* SPLASH */
+#splash{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99999;
+animation:fadeOut 1.2s ease forwards;
+animation-delay:1.2s;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+#splash img{
+width:110px;
+animation:logoPulse 1.2s ease infinite;
 }
 
-.modal-close {
-  background: transparent;
-  border: none;
-  color: #aaa;
-  font-size: 1rem;
-  cursor: pointer;
+@keyframes logoPulse{
+0%{transform:scale(0.9)}
+50%{transform:scale(1)}
+100%{transform:scale(0.9)}
 }
 
-.modal-body {
-  flex: 1;
-  overflow: auto;
+@keyframes fadeOut{
+to{opacity:0;pointer-events:none}
 }
 
-.modal-body pre {
-  background: #020617;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  margin-bottom: 10px;
+.container{max-width:420px;margin:0 auto;padding:28px 20px 40px}
+.card{background:rgba(255,255,255,0.04);border-radius:20px;padding:26px 22px 28px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+
+.user-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.user-info{display:flex;align-items:center;gap:12px}
+.user-info img{width:46px;height:46px;border-radius:50%}
+.user-name{font-size:.8rem;color:#9ca3af}
+.user-name strong{display:block;font-size:.95rem;color:#fff}
+
+.btn-logout{
+padding:6px 14px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.2);
+background:transparent;
+color:#9ca3af;
+font-size:.75rem;
+cursor:pointer;
+flex:none;
 }
 
-.modal-body img {
-  width: 100%;
-  border-radius: 12px;
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
+.field input,.field select{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:none;
+background:#020617;
+color:#e5e7eb;
+font-size:.9rem;
 }
 
-.modal-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
+.actions{display:flex;gap:12px;margin-top:20px}
+button{flex:1;padding:14px;border-radius:16px;border:none;cursor:pointer;font-weight:600;font-size:.95rem}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff}
+.btn-secondary{background:transparent;color:#9ca3af;border:1px solid rgba(255,255,255,.2)}
 
-.btn-modal {
-  flex: 1;
-  padding: 10px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
+.status{margin-top:16px;font-size:.75rem;display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size:.75rem;white-space:pre-wrap}
 
-.btn-pdf { background: #2563eb; color: white; }
-.btn-wsp { background: #22c55e; color: white; }
-.btn-close { background: transparent; border: 1px solid #555; color: #ccc; }
-
-    .user-info img {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-    }
-
-    .user-name {
-      font-size: 0.8rem;
-      color: #9ca3af;
-    }
-
-    .user-name strong {
-      display: block;
-      font-size: 0.95rem;
-      color: #fff;
-    }
-
-    .btn-logout {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent;
-  color: #9ca3af;
-  font-size: 0.75rem;
-  cursor: pointer;
-  width: 30px;        /* ancho fijo */
-  text-align: center;
-  flex-shrink: 0;     /* no se estira */
-}
-
-    .btn-logout {
-  padding: 6px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent;
-  color: #9ca3af;
-  font-size: 0.75rem;
-  cursor: pointer;
-
-  flex: none !important;   /* mata el flex:1 global */
-  width: auto;             /* ancho real del texto */
-}
-
-    .field { margin-bottom: 18px; }
-
-    .field label {
-      display: block;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      margin-bottom: 6px;
-    }
-
-    .field input, .field select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 0.9rem;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    button {
-      flex: 1;
-      padding: 14px;
-      border-radius: 16px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #2563eb, #1e40af);
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: #9ca3af;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .status {
-      margin-top: 16px;
-      font-size: 0.75rem;
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-    }
-
-    pre {
-      margin-top: 16px;
-      background: #020617;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      white-space: pre-wrap;
-    }
-  </style>
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:9999}
+.modal-card{width:95%;max-width:520px;background:#020617;border-radius:20px;padding:18px;display:flex;flex-direction:column;max-height:90vh}
+.modal-header{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin-bottom:10px}
+.modal-close{background:transparent;border:none;color:#aaa;font-size:1rem;cursor:pointer}
+.modal-body{flex:1;overflow:auto}
+.modal-body pre{background:#020617;padding:10px;border-radius:10px;font-size:.75rem;margin-bottom:10px}
+.modal-body img{width:100%;border-radius:12px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.btn-modal{flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-size:.75rem;font-weight:600}
+.btn-pdf{background:#2563eb;color:white}
+.btn-wsp{background:#22c55e;color:white}
+.btn-close{background:transparent;border:1px solid #555;color:#ccc}
+</style>
 </head>
 
 <body>
+
+<!-- SPLASH -->
+<div id="splash">
+<img src="icons/icon-192.png">
+</div>
+
 <div class="container">
-  <div class="card">
+<div class="card">
 
-    <!-- HEADER -->
-    <div class="user-header">
-      <div class="user-info">
-        <img src="icons/icon-192.png">
-        <div class="user-name">
-          <strong id="userName"></strong>
-          <span id="userRole"></span>
-        </div>
-      </div>
+<div class="user-header">
+<div class="user-info">
+<img src="icons/icon-192.png">
+<div class="user-name">
+<strong id="userName"></strong>
+<span id="userRole"></span>
+</div>
+</div>
+<button class="btn-logout" onclick="logout()">Salir</button>
+</div>
 
-      <button class="btn-logout" onclick="logout()">Salir</button>
-    </div>
+<div class="field">
+<label>COMPAÑÍA</label>
+<select id="company">
+<option value="VTR">VTR</option>
+<option value="CLARO">CLARO</option>
+</select>
+</div>
 
-    <div class="field">
-      <label>COMPAÑÍA</label>
-      <select id="company">
-        <option value="VTR">VTR</option>
-        <option value="CLARO">CLARO</option>
-      </select>
-    </div>
+<div class="field">
+<label>MODO</label>
+<select id="mode">
+<option value="factibilidad">Factibilidad Técnica</option>
+<option value="validacion">Estado de Venta</option>
+<option value="agenda">Agenda</option>
+<option value="factibilidad_rut">Factibilidad por RUT</option>
+<option value="boleta">Boleta / Factura</option>
+</select>
+</div>
 
-    <div class="field">
-      <label>MODO</label>
-      <select id="mode">
-        <option value="factibilidad">Factibilidad Técnica</option>
-        <option value="validacion">Estado de Venta</option>
-        <option value="agenda">Agenda</option>
-        <option value="factibilidad_rut">Factibilidad por RUT</option>
-        <option value="boleta">Boleta / Factura</option>
-      </select>
-    </div>
+<div class="field">
+<label>DIRECCIÓN</label>
+<input id="address" type="text">
+</div>
 
-    <div class="field">
-      <label>DIRECCIÓN</label>
-      <input id="address" type="text">
-    </div>
+<div class="field">
+<label>COMUNA</label>
+<input id="comuna" type="text">
+</div>
 
-    <div class="field">
-      <label>COMUNA</label>
-      <input id="comuna" type="text">
-    </div>
+<div class="field">
+<label>RUT</label>
+<input id="rut" type="text">
+</div>
 
-    <div class="field">
-      <label>RUT</label>
-      <input id="rut" type="text">
-    </div>
+<div class="actions">
+<button id="btnRun" class="btn-primary">Ejecutar</button>
+<button id="btnClear" class="btn-secondary">Limpiar</button>
+</div>
 
-    <div class="actions">
-      <button id="btnRun" class="btn-primary">Ejecutar</button>
-      <button id="btnClear" class="btn-secondary">Limpiar</button>
-    </div>
+<div class="status">
+<div class="dot"></div>
+<span id="statusText">Listo — conectado a la API</span>
+</div>
 
-    <div class="status">
-      <div class="dot"></div>
-      <span id="statusText">Listo — conectado a la API</span>
-    </div>
+<pre id="output"></pre>
 
-    <pre id="output"></pre>
-
-  </div>
+</div>
 </div>
 
 <script src="app.js"></script>
 
 <script>
-  // Pintar datos del usuario
-  document.getElementById("userName").innerText = user.nombre;
-  document.getElementById("userRole").innerText = user.rol;
-
-  function logout() {
-    localStorage.removeItem("legends_user");
-    window.location.href = "login.html";
-  }
+document.getElementById("userName").innerText = user.nombre;
+document.getElementById("userRole").innerText = user.rol;
+function logout(){
+localStorage.removeItem("legends_user");
+window.location.href="login.html";
+}
 </script>
 
-  <!-- MODAL RESULTADO -->
+<!-- MODAL -->
 <div id="resultModal" class="modal-overlay">
-  <div class="modal-card">
-    
-    <div class="modal-header">
-      <strong>Resultado</strong>
-      <button class="modal-close" onclick="closeResultModal()">✖</button>
-    </div>
-
-    <div class="modal-body">
-      <pre id="modalText"></pre>
-      <img id="modalImg" />
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-modal btn-pdf" onclick="downloadPDF()">📄 PDF</button>
-      <button class="btn-modal btn-wsp" onclick="shareWhatsApp()">📲 WhatsApp</button>
-      <button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
-    </div>
-
-  </div>
+<div class="modal-card">
+<div class="modal-header">
+<strong>Resultado</strong>
+<button class="modal-close" onclick="closeResultModal()">✖</button>
+</div>
+<div class="modal-body">
+<pre id="modalText"></pre>
+<img id="modalImg"/>
+</div>
+<div class="modal-actions">
+<button class="btn-modal btn-pdf" onclick="downloadPDF()">📄 PDF</button>
+<button class="btn-modal btn-wsp" onclick="shareWhatsApp()">📲 WhatsApp</button>
+<button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
+</div>
+</div>
 </div>
 
 </body>
