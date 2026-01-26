@@ -136,6 +136,7 @@ async function login() {
   const errorBox = document.getElementById("error");
 
   errorBox.style.display = "none";
+  errorBox.innerText = "";
 
   if (!email || !password) {
     return showError("Completá todos los campos");
@@ -154,14 +155,11 @@ async function login() {
       return showError(data.error || "Acceso denegado");
     }
 
-    // Guardar sesión
     localStorage.setItem("legends_user", JSON.stringify(data.user));
-
-    // Entrar a la app
     window.location.href = "index.html";
 
   } catch (err) {
-    showError("Error de conexión");
+    showError("Error de conexión con la API");
   }
 }
 
@@ -171,9 +169,6 @@ function showError(msg) {
   errorBox.style.display = "block";
 }
 </script>
-
-
-
 
 </body>
 </html>
