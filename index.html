@@ -127,6 +127,7 @@ pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size
 </div>
 </div>
 <button class="btn-logout" onclick="logout()">Salir</button>
+<button class="btn-logout" onclick="openHistory()">Historial</button>
 </div>
 
 <div class="field">
@@ -206,6 +207,26 @@ window.location.href="login.html";
 <button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
 </div>
 </div>
+</div>
+
+  <!-- MODAL HISTORIAL -->
+<div id="historyModal" class="modal-overlay">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <strong>Historial</strong>
+      <button class="modal-close" onclick="closeHistory()">✖</button>
+    </div>
+
+    <div class="modal-body" id="historyList">
+      <!-- se llena por JS -->
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-close" onclick="closeHistory()">Cerrar</button>
+    </div>
+
+  </div>
 </div>
 
 </body>
