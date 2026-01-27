@@ -75,7 +75,7 @@ function repeatHistory(i) {
 }
 
 // =========================
-// NOTAS (MODAL PRO)
+// NOTAS
 // =========================
 function editNote(i) {
   const history = getHistory();
@@ -168,12 +168,16 @@ btnRun.addEventListener("click", async () => {
   const rutValue = document.getElementById("rut").value.trim();
 
   setStatus("⏳ Enviando consulta a Legends…");
+  showWorkMode();   // <<< ACTIVA PANTALLA TRABAJO
 
   try {
     let pollUrl = null;
 
     if (modeValue === "factibilidad") {
-      if (!direccionValue || !comunaValue) return setStatus("🔴 Falta dirección o comuna");
+      if (!direccionValue || !comunaValue) {
+        hideWorkMode();
+        return setStatus("🔴 Falta dirección o comuna");
+      }
 
       const start = await fetch(`${API}/factibilidad`, {
         method: "POST",
@@ -186,7 +190,10 @@ btnRun.addEventListener("click", async () => {
     }
 
     if (modeValue === "validacion") {
-      if (!rutValue) return setStatus("🔴 Falta el RUT");
+      if (!rutValue) {
+        hideWorkMode();
+        return setStatus("🔴 Falta el RUT");
+      }
 
       const start = await fetch(`${API}/estado-rut`, {
         method: "POST",
@@ -199,7 +206,10 @@ btnRun.addEventListener("click", async () => {
     }
 
     if (modeValue === "agenda") {
-      if (!rutValue) return setStatus("🔴 Falta el RUT");
+      if (!rutValue) {
+        hideWorkMode();
+        return setStatus("🔴 Falta el RUT");
+      }
 
       const start = await fetch(`${API}/agenda`, {
         method: "POST",
@@ -211,7 +221,10 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/agenda/${data.jobId}`;
     }
 
-    if (!pollUrl) return setStatus("🔴 Modo inválido");
+    if (!pollUrl) {
+      hideWorkMode();
+      return setStatus("🔴 Modo inválido");
+    }
 
     setStatus("🟡 Ejecutando en Legends…");
 
@@ -223,12 +236,14 @@ btnRun.addEventListener("click", async () => {
       if (result.status === "queued" || result.status === "running") continue;
 
       if (result.status === "error") {
+        hideWorkMode();
         setStatus("🔴 Error");
         openResultModal(result.error || "Error desconocido", "");
         return;
       }
 
       if (result.status === "done") {
+        hideWorkMode();
         setStatus("🟢 Finalizado");
 
         saveHistory({
@@ -246,6 +261,7 @@ btnRun.addEventListener("click", async () => {
     }
 
   } catch (e) {
+    hideWorkMode();
     setStatus("🔴 Error");
     openResultModal(e.message, "");
   }
