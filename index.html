@@ -113,6 +113,40 @@ pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size
 .btn-pdf{background:#2563eb;color:white}
 .btn-wsp{background:#22c55e;color:white}
 .btn-close{background:transparent;border:1px solid #555;color:#ccc}
+
+/* =========================
+   MODO TRABAJO (pantalla dedicada)
+   ========================= */
+#workMode{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99998;
+text-align:center;
+}
+
+#workMode img{
+width:90px;
+margin-bottom:20px;
+animation:workPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes workPulse{
+0%{transform:scale(0.9);opacity:0.6}
+50%{transform:scale(1);opacity:1}
+100%{transform:scale(0.9);opacity:0.6}
+}
+
+#workText{
+font-size:0.9rem;
+color:#9ca3af;
+margin-top:12px;
+min-height:20px;
+}
 </style>
 </head>
 
@@ -120,6 +154,13 @@ pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size
 
 <div id="splash">
 <img src="icons/icon-192.png">
+</div>
+
+<!-- MODO TRABAJO -->
+<div id="workMode">
+  <img src="icons/icon-192.png">
+  <strong style="font-size:1rem">🤖 Legends Bot trabajando</strong>
+  <div id="workText">Conectando con sistemas corporativos…</div>
 </div>
 
 <div class="container">
@@ -188,7 +229,39 @@ pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size
 </div>
 
 <script src="app.js"></script>
+
 <script>
+/* =========================
+   MODO TRABAJO (JS)
+   ========================= */
+const workMessages = [
+  "Conectando con sistemas corporativos…",
+  "Autenticando credenciales…",
+  "Consultando base de datos Andes…",
+  "Procesando información comercial…",
+  "Validando resultados…",
+  "Generando reporte final…"
+];
+
+let workInterval = null;
+
+function showWorkMode(){
+  document.getElementById("workMode").style.display = "flex";
+  let i = 0;
+  workInterval = setInterval(() => {
+    document.getElementById("workText").innerText = workMessages[i % workMessages.length];
+    i++;
+  }, 2000);
+}
+
+function hideWorkMode(){
+  document.getElementById("workMode").style.display = "none";
+  clearInterval(workInterval);
+}
+
+/* =========================
+   USER UI
+   ========================= */
 document.getElementById("userName").innerText = user.nombre;
 document.getElementById("userRole").innerText = user.rol;
 
@@ -197,8 +270,8 @@ if (user.rol === "Admin") {
 }
 
 function logout(){
-localStorage.removeItem("legends_user");
-window.location.href="login.html";
+  localStorage.removeItem("legends_user");
+  window.location.href="login.html";
 }
 </script>
 
