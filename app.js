@@ -168,71 +168,31 @@ btnRun.addEventListener("click", async () => {
   const rutValue = document.getElementById("rut").value.trim();
 
   setStatus("⏳ Enviando consulta a Legends…");
-  showWorkMode();   // <<< ACTIVA PANTALLA TRABAJO
+  showWorkMode();
 
   try {
     let pollUrl = null;
 
-    if (modeValue === "factibilidad") {
-      if (!direccionValue || !comunaValue) {
-        hideWorkMode();
-        return setStatus("🔴 Falta dirección o comuna");
-      }
-
-      const start = await fetch(`${API}/factibilidad`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
-        body: JSON.stringify({ direccion: direccionValue, comuna: comunaValue, company: companyValue })
-      });
-
-      const data = await start.json();
-      pollUrl = `${API}/factibilidad/${data.jobId}`;
-    }
-
-    if (modeValue === "validacion") {
-      if (!rutValue) {
-        hideWorkMode();
-        return setStatus("🔴 Falta el RUT");
-      }
-
-      const start = await fetch(`${API}/estado-rut`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
-        body: JSON.stringify({ rut: rutValue, company: companyValue })
-      });
-
-      const data = await start.json();
-      pollUrl = `${API}/estado-rut/${data.jobId}`;
-    }
-
-    if (modeValue === "agenda") {
-      if (!rutValue) {
-        hideWorkMode();
-        return setStatus("🔴 Falta el RUT");
-      }
-
-      const start = await fetch(`${API}/agenda`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
-        body: JSON.stringify({ rut: rutValue, company: companyValue })
-      });
-
-      const data = await start.json();
-      pollUrl = `${API}/agenda/${data.jobId}`;
-    }
-
     if (modeValue === "boleta") {
-  if (!rutValue) return setStatus("🔴 Falta el RUT");
+      if (!rutValue) {
+        hideWorkMode();
+        return setStatus("🔴 Falta el RUT");
+      }
 
-  const start = await fetch(`${API}/boleta`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
-    body: JSON.stringify({ rut: rutValue, company: companyValue })
-  });
+      const start = await fetch(`${API}/boleta`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
+        body: JSON.stringify({ rut: rutValue, company: companyValue })
+      });
 
-  const data = await start.json();
-  pollUrl = `${API}/boleta/${data.jobId}`;
-}
+      if (!start.ok) {
+        hideWorkMode();
+        return openResultModal("Backend no tiene /boleta implementado", "");
+      }
+
+      const data = await start.json();
+      pollUrl = `${API}/boleta/${data.jobId}`;
+    }
 
     if (!pollUrl) {
       hideWorkMode();
