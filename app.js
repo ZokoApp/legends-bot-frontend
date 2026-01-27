@@ -221,6 +221,19 @@ btnRun.addEventListener("click", async () => {
       pollUrl = `${API}/agenda/${data.jobId}`;
     }
 
+    if (modeValue === "boleta") {
+  if (!rutValue) return setStatus("🔴 Falta el RUT");
+
+  const start = await fetch(`${API}/boleta`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
+    body: JSON.stringify({ rut: rutValue, company: companyValue })
+  });
+
+  const data = await start.json();
+  pollUrl = `${API}/boleta/${data.jobId}`;
+}
+
     if (!pollUrl) {
       hideWorkMode();
       return setStatus("🔴 Modo inválido");
