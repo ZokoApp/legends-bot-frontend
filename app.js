@@ -153,7 +153,7 @@ function setStatus(text) {
 // LIMPIAR
 // =========================
 btnClear.addEventListener("click", () => {
-  setStatus("🟢 Listo — conectado a la API");
+  setStatus("🟢 Conectado a Legends Bot");
 });
 
 // =========================
@@ -167,7 +167,7 @@ btnRun.addEventListener("click", async () => {
   const comunaValue = document.getElementById("comuna").value.trim();
   const rutValue = document.getElementById("rut").value.trim();
 
-  setStatus("⏳ Enviando consulta…");
+  setStatus("⏳ Enviando consulta a Legends…");
 
   try {
     let pollUrl = null;
