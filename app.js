@@ -102,7 +102,33 @@ function closeNote() {
 function openResultModal(text, imageUrl) {
   lastTextResult = text || "";
   lastImageUrl = imageUrl || "";
-  document.getElementById("modalText").innerText = lastTextResult;
+
+  const modalText = document.getElementById("modalText");
+
+  // si es un link, mostrar botón
+  if (lastTextResult.startsWith("http")) {
+    modalText.innerHTML = `
+      <div style="text-align:center;">
+        <p>Boleta disponible</p>
+        <a href="${lastTextResult}" target="_blank"
+           style="
+             display:inline-block;
+             margin-top:12px;
+             padding:12px 20px;
+             background:#3b82f6;
+             color:white;
+             border-radius:10px;
+             text-decoration:none;
+             font-weight:600;
+           ">
+          🔎 Ver boleta
+        </a>
+      </div>
+    `;
+  } else {
+    modalText.innerText = lastTextResult;
+  }
+
   document.getElementById("modalImg").src = lastImageUrl || "";
   document.getElementById("resultModal").style.display = "flex";
 }
