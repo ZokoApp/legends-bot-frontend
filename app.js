@@ -249,6 +249,37 @@ if (modeValue === "factibilidad") {
   const data = await start.json();
   pollUrl = `${API}/factibilidad/${data.jobId}`;
 }
+
+    // =========================
+// AGENDA
+// =========================
+if (modeValue === "agenda") {
+  if (!rutValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta el RUT");
+  }
+
+  const start = await fetch(`${API}/agenda`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+      rut: rutValue,
+      company: companyValue
+    })
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /agenda implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/agenda/${data.jobId}`;
+}
+    
     // =========================
 // ESTADO DE VENTA (VALIDACION)
 // =========================
