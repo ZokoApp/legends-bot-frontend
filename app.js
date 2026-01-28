@@ -249,6 +249,35 @@ if (modeValue === "factibilidad") {
   const data = await start.json();
   pollUrl = `${API}/factibilidad/${data.jobId}`;
 }
+    // =========================
+// ESTADO DE VENTA (VALIDACION)
+// =========================
+if (modeValue === "validacion") {
+  if (!rutValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta el RUT");
+  }
+
+  const start = await fetch(`${API}/estado-rut`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+      rut: rutValue,
+      company: companyValue
+    })
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /estado-rut implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/estado-rut/${data.jobId}`;
+}
 
     if (!pollUrl) {
       hideWorkMode();
