@@ -219,6 +219,36 @@ btnRun.addEventListener("click", async () => {
       const data = await start.json();
       pollUrl = `${API}/boleta/${data.jobId}`;
     }
+    // =========================
+// FACTIBILIDAD TÉCNICA
+// =========================
+if (modeValue === "factibilidad") {
+  if (!direccionValue || !comunaValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta dirección o comuna");
+  }
+
+  const start = await fetch(`${API}/factibilidad`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+      direccion: direccionValue,
+      comuna: comunaValue,
+      company: companyValue
+    })
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /factibilidad implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/factibilidad/${data.jobId}`;
+}
 
     if (!pollUrl) {
       hideWorkMode();
