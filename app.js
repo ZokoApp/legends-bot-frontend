@@ -7,6 +7,22 @@ let lastImageUrl = "";
 let lastTextResult = "";
 let currentNoteIndex = null;
 
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
+  const raw = atob(base64);
+  const output = new Uint8Array(raw.length);
+
+  for (let i = 0; i < raw.length; ++i) {
+    output[i] = raw.charCodeAt(i);
+  }
+
+  return output;
+}
+
 
 // =========================
 // PUSH NOTIFICATIONS
@@ -25,7 +41,7 @@ async function registerPush() {
 
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: "BMx85wPVhzQGwhRk7gcjDBdhYcns726zs4Ayionzu7i2C6gyFDY9ALSY9ynA0Zi3ouCkguMyxtntx7MdTfqHM"
+      applicationServerKey: urlBase64ToUint8Array("BMx05wPVhzQGwRhR7gcjDBdhYcns726zs4Ayionzu7i2C6gYFDY9AL5YgynA8Zi3ouCkguNyxtntx7MdTqH4M")
     });
 
     const user = JSON.parse(localStorage.getItem("legends_user"));
