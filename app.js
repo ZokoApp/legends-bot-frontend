@@ -7,6 +7,46 @@ let lastImageUrl = "";
 let lastTextResult = "";
 let currentNoteIndex = null;
 
+
+// =========================
+// PUSH NOTIFICATIONS
+// =========================
+async function registerPush() {
+  try {
+    if (!("serviceWorker" in navigator)) return;
+
+    const reg = await navigator.serviceWorker.ready;
+
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) return;
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: "BMx85wPVhzQGwhRk7gcjDBdhYcns726zs4Ayionzu7i2C6gyFDY9ALSY9ynA0Zi3ouCkguMyxtntx7MdTfqHM"
+    });
+
+    const user = JSON.parse(localStorage.getItem("legends_user"));
+    if (!user?.email) return;
+
+    await fetch(`${API}/subscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email,
+        subscription: sub
+      })
+    });
+
+    console.log("🔔 Push registrado");
+
+  } catch (e) {
+    console.error("Push error", e);
+  }
+}
+
 // =========================
 // HISTORIAL
 // =========================
@@ -181,6 +221,8 @@ function setStatus(text) {
 btnClear.addEventListener("click", () => {
   setStatus("🟢 Conectado a Legends Bot");
 });
+
+registerPush();
 
 // =========================
 // EJECUTAR
