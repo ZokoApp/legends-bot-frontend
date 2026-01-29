@@ -189,6 +189,18 @@ min-height:20px;
 </style>
 </head>
 
+  /* =========================
+   SMART RUT VALIDATOR
+   ========================= */
+const rutInput = document.getElementById("rut");
+const rutHint  = document.getElementById("rutHint");
+
+rutInput.addEventListener("focus", () => {
+  rutHint.classList.add("show");
+});
+
+rutInput.addEventListener("blur", () => {
+
 <body>
 
 <div id="splash">
@@ -374,17 +386,7 @@ function logout(){
 </div>
 
   <script>
-/* =========================
-   SMART RUT VALIDATOR
-   ========================= */
-const rutInput = document.getElementById("rut");
-const rutHint  = document.getElementById("rutHint");
 
-rutInput.addEventListener("focus", () => {
-  rutHint.classList.add("show");
-});
-
-rutInput.addEventListener("blur", () => {
 
 </body>
 </html>
