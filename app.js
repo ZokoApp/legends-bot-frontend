@@ -1,331 +1,361 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Legends Bot – Producción</title>
 
-<script>
-const user = JSON.parse(localStorage.getItem("legends_user"));
-if (!user) window.location.href = "login.html";
-</script>
+// =========================
+// CONFIG
+// =========================
+const API = "https://unreproached-subangularly-cristopher.ngrok-free.dev";
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b1220">
+let lastImageUrl = "";
+let lastTextResult = "";
+let currentNoteIndex = null;
 
-<style>
-*{box-sizing:border-box}
-body{
-margin:0;
-font-family:system-ui;
-background:radial-gradient(circle at top,#0f172a,#020617);
-color:#e5e7eb;
+// =========================
+// HISTORIAL
+// =========================
+function getHistory() {
+  return JSON.parse(localStorage.getItem("legends_history") || "[]");
 }
 
-/* SPLASH */
-#splash{
-position:fixed;
-inset:0;
-background:radial-gradient(circle at top,#0f172a,#020617);
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-z-index:99999;
-animation:fadeOut 1.2s ease forwards;
-animation-delay:1.2s;
+function saveHistory(item) {
+  const history = getHistory();
+  history.unshift(item);
+  if (history.length > 30) history.pop();
+  localStorage.setItem("legends_history", JSON.stringify(history));
 }
 
-#splash img{
-width:110px;
-animation:logoPulse 1.2s ease infinite;
+function updateHistory(history) {
+  localStorage.setItem("legends_history", JSON.stringify(history));
 }
 
-@keyframes logoPulse{
-0%{transform:scale(0.9)}
-50%{transform:scale(1)}
-100%{transform:scale(0.9)}
+function openHistory() {
+  const list = document.getElementById("historyList");
+  const history = getHistory();
+  list.innerHTML = "";
+
+  if (history.length === 0) {
+    list.innerHTML = "<p style='color:#888'>Sin consultas aún</p>";
+    document.getElementById("historyModal").style.display = "flex";
+    return;
+  }
+
+  history.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.style.marginBottom = "14px";
+    div.innerHTML = `
+      <strong>${h.fecha}</strong><br>
+      ${h.modo}<br>
+      ${h.datos.direccion || h.datos.rut || ""}<br>
+      ${h.nota ? `<em>📝 ${h.nota}</em><br>` : ""}
+      <button onclick="viewHistory(${i})">Ver</button>
+      <button onclick="repeatHistory(${i})">Repetir</button>
+      <button onclick="editNote(${i})">Nota</button>
+      <hr>
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById("historyModal").style.display = "flex";
 }
 
-@keyframes fadeOut{
-to{opacity:0;pointer-events:none}
+function closeHistory() {
+  document.getElementById("historyModal").style.display = "none";
 }
 
-.container{max-width:420px;margin:0 auto;padding:28px 20px 40px}
-.card{background:rgba(255,255,255,0.04);border-radius:20px;padding:26px 22px 28px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
-
-.user-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.user-info{display:flex;align-items:center;gap:12px}
-.user-info img{width:46px;height:46px;border-radius:50%}
-.user-name{font-size:.8rem;color:#9ca3af}
-.user-name strong{display:block;font-size:.95rem;color:#fff}
-
-.verified {
-  width:16px;
-  height:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+function viewHistory(i) {
+  const h = getHistory()[i];
+  openResultModal(h.resultado, h.imagen);
 }
 
-.btn-logout{
-padding:6px 14px;
-border-radius:12px;
-border:1px solid rgba(255,255,255,.2);
-background:transparent;
-color:#9ca3af;
-font-size:.75rem;
-cursor:pointer;
-flex:none;
+function repeatHistory(i) {
+  const h = getHistory()[i];
+  document.getElementById("company").value = h.datos.company;
+  document.getElementById("mode").value = h.modo;
+  document.getElementById("address").value = h.datos.direccion || "";
+  document.getElementById("comuna").value = h.datos.comuna || "";
+  document.getElementById("rut").value = h.datos.rut || "";
+  closeHistory();
 }
 
-.field{margin-bottom:18px}
-.field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
-.field input,.field select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:#020617;
-color:#e5e7eb;
-font-size:.9rem;
+// =========================
+// NOTAS
+// =========================
+function editNote(i) {
+  const history = getHistory();
+  currentNoteIndex = i;
+  document.getElementById("noteText").value = history[i].nota || "";
+  document.getElementById("noteModal").style.display = "flex";
 }
 
-.actions{display:flex;gap:12px;margin-top:20px}
-button{flex:1;padding:14px;border-radius:16px;border:none;cursor:pointer;font-weight:600;font-size:.95rem}
-.btn-primary{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff}
-.btn-secondary{background:transparent;color:#9ca3af;border:1px solid rgba(255,255,255,.2)}
-
-.status{margin-top:16px;font-size:.75rem;display:flex;gap:6px;align-items:center}
-.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
-pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size:.75rem;white-space:pre-wrap}
-
-/* MODALES */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:9999}
-.modal-card{width:95%;max-width:520px;background:#020617;border-radius:20px;padding:18px;display:flex;flex-direction:column;max-height:90vh}
-.modal-header{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin-bottom:10px}
-.modal-close{background:transparent;border:none;color:#aaa;font-size:1rem;cursor:pointer}
-.modal-body{flex:1;overflow:auto}
-.modal-body pre{background:#020617;padding:10px;border-radius:10px;font-size:.75rem;margin-bottom:10px}
-.modal-body img{width:100%;border-radius:12px}
-.modal-actions{display:flex;gap:8px;margin-top:12px}
-.btn-modal{flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-size:.75rem;font-weight:600}
-.btn-pdf{background:#2563eb;color:white}
-.btn-wsp{background:#22c55e;color:white}
-.btn-close{background:transparent;border:1px solid #555;color:#ccc}
-
-/* =========================
-   MODO TRABAJO (pantalla dedicada)
-   ========================= */
-#workMode{
-position:fixed;
-inset:0;
-background:radial-gradient(circle at top,#0f172a,#020617);
-display:none;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-z-index:99998;
-text-align:center;
+function saveNote() {
+  const history = getHistory();
+  history[currentNoteIndex].nota = document.getElementById("noteText").value.trim();
+  updateHistory(history);
+  closeNote();
+  openHistory();
 }
 
-#workMode img{
-width:90px;
-margin-bottom:20px;
-animation:workPulse 1.4s ease-in-out infinite;
+function closeNote() {
+  document.getElementById("noteModal").style.display = "none";
 }
 
-@keyframes workPulse{
-0%{transform:scale(0.9);opacity:0.6}
-50%{transform:scale(1);opacity:1}
-100%{transform:scale(0.9);opacity:0.6}
+// =========================
+// MODAL RESULTADO
+// =========================
+function openResultModal(text, imageUrl) {
+  lastTextResult = text || "";
+  lastImageUrl = imageUrl || "";
+
+  const modalText = document.getElementById("modalText");
+
+  // si es un link, mostrar botón
+  if (lastTextResult.startsWith("http")) {
+    modalText.innerHTML = `
+      <div style="text-align:center;">
+        <p>Boleta disponible</p>
+        <a href="${lastTextResult}" target="_blank"
+           style="
+             display:inline-block;
+             margin-top:12px;
+             padding:12px 20px;
+             background:#3b82f6;
+             color:white;
+             border-radius:10px;
+             text-decoration:none;
+             font-weight:600;
+           ">
+          🔎 Ver boleta
+        </a>
+      </div>
+    `;
+  } else {
+    modalText.innerText = lastTextResult;
+  }
+
+  document.getElementById("modalImg").src = lastImageUrl || "";
+  document.getElementById("resultModal").style.display = "flex";
 }
 
-#workText{
-font-size:0.9rem;
-color:#9ca3af;
-margin-top:12px;
-min-height:20px;
-}
-</style>
-</head>
-
-<body>
-
-<div id="splash">
-<img src="icons/icon-192.png">
-</div>
-
-<!-- MODO TRABAJO -->
-<div id="workMode">
-  <img src="icons/icon-192.png">
-  <strong style="font-size:1rem">🤖 Legends Bot trabajando</strong>
-  <div id="workText">Conectando con sistemas corporativos…</div>
-</div>
-
-<div class="container">
-<div class="card">
-
-<div class="user-header">
-<div class="user-info">
-<img src="icons/icon-192.png">
-<div class="user-name">
-<div style="display:flex;align-items:center;gap:6px">
-  <strong id="userName"></strong>
-  <span id="verifiedBadge" class="verified" style="display:none">
-  <svg viewBox="0 0 24 24" width="16" height="16">
-    <circle cx="12" cy="12" r="10" fill="#1d9bf0"/>
-    <path d="M7 12.5l3 3 7-7"
-          stroke="white"
-          stroke-width="2.5"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
-  </svg>
-</span>
-</div>
-<span id="userRole"></span>
-</div>
-</div>
-<button class="btn-logout" onclick="openHistory()">Historial</button>
-<button class="btn-logout" onclick="logout()">Salir</button>
-</div>
-
-<div class="field">
-<label>COMPAÑÍA</label>
-<select id="company">
-<option value="VTR">VTR</option>
-<option value="CLARO">CLARO</option>
-</select>
-</div>
-
-<div class="field">
-<label>MODO</label>
-<select id="mode">
-<option value="factibilidad">Factibilidad Técnica</option>
-<option value="validacion">Estado de Venta</option>
-<option value="agenda">Agenda</option>
-<option value="boleta">Boleta / Factura</option>
-</select>
-</div>
-
-<div class="field"><label>DIRECCIÓN</label><input id="address"></div>
-<div class="field"><label>COMUNA</label><input id="comuna"></div>
-<div class="field"><label>RUT</label><input id="rut"></div>
-
-<div class="actions">
-<button id="btnRun" class="btn-primary">Ejecutar</button>
-<button id="btnClear" class="btn-secondary">Limpiar</button>
-</div>
-
-<div class="status">
-<div class="dot"></div>
-<span id="statusText">Conectado a Legends Bot</span>
-</div>
-
-<pre id="output"></pre>
-
-</div>
-</div>
-
-<script src="app.js"></script>
-
-<script>
-/* =========================
-   MODO TRABAJO (JS)
-   ========================= */
-const workMessages = [
-  "Conectando con sistemas corporativos…",
-  "Autenticando credenciales…",
-  "Consultando base de datos Andes…",
-  "Procesando información comercial…",
-  "Validando resultados…",
-  "Generando reporte final…"
-];
-
-let workInterval = null;
-
-function showWorkMode(){
-  document.getElementById("workMode").style.display = "flex";
-  let i = 0;
-  workInterval = setInterval(() => {
-    document.getElementById("workText").innerText = workMessages[i % workMessages.length];
-    i++;
-  }, 2000);
+function closeResultModal() {
+  document.getElementById("resultModal").style.display = "none";
 }
 
-function hideWorkMode(){
-  document.getElementById("workMode").style.display = "none";
-  clearInterval(workInterval);
+function shareWhatsApp() {
+  let msg = lastTextResult;
+  if (lastImageUrl) msg += "\n\n📸 " + lastImageUrl;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 }
 
-/* =========================
-   USER UI
-   ========================= */
-document.getElementById("userName").innerText = user.nombre;
-document.getElementById("userRole").innerText = user.rol;
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const lines = pdf.splitTextToSize(lastTextResult, 180);
+  pdf.text(lines, 10, 10);
+  let y = 10 + lines.length * 6 + 10;
 
-if (user.rol === "Admin") {
-  document.getElementById("verifiedBadge").style.display = "flex";
+  if (lastImageUrl) {
+    const imgData = await fetch(lastImageUrl)
+      .then(r => r.blob())
+      .then(b => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(b);
+      }));
+    pdf.addImage(imgData, "PNG", 10, y, 180, 100);
+  }
+
+  pdf.save("resultado_legends_bot.pdf");
 }
 
-function logout(){
-  localStorage.removeItem("legends_user");
-  window.location.href="login.html";
+// =========================
+// UTILS
+// =========================
+function sleep(ms) {
+  return new Promise(res => setTimeout(res, ms));
 }
-</script>
 
-<!-- MODAL RESULTADO -->
-<div id="resultModal" class="modal-overlay">
-<div class="modal-card">
-<div class="modal-header">
-<strong>Resultado</strong>
-<button class="modal-close" onclick="closeResultModal()">✖</button>
-</div>
-<div class="modal-body">
-<pre id="modalText"></pre>
-<img id="modalImg"/>
-</div>
-<div class="modal-actions">
-<button class="btn-modal btn-pdf" onclick="downloadPDF()">📄 PDF</button>
-<button class="btn-modal btn-wsp" onclick="shareWhatsApp()">📲 WhatsApp</button>
-<button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
-</div>
-</div>
-</div>
+function setStatus(text) {
+  statusText.textContent = text;
+}
 
-<!-- MODAL HISTORIAL -->
-<div id="historyModal" class="modal-overlay">
-<div class="modal-card">
-<div class="modal-header">
-<strong>Historial</strong>
-<button class="modal-close" onclick="closeHistory()">✖</button>
-</div>
-<div class="modal-body" id="historyList"></div>
-<div class="modal-actions">
-<button class="btn-modal btn-close" onclick="closeHistory()">Cerrar</button>
-</div>
-</div>
-</div>
+// =========================
+// LIMPIAR
+// =========================
+btnClear.addEventListener("click", () => {
+  setStatus("🟢 Conectado a Legends Bot");
+});
 
-<!-- MODAL NOTA -->
-<div id="noteModal" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-header">
-      <strong>Nota</strong>
-      <button class="modal-close" onclick="closeNote()">✖</button>
-    </div>
+// =========================
+// EJECUTAR
+// =========================
+btnRun.addEventListener("click", async () => {
 
-    <div class="modal-body">
-      <textarea id="noteText" style="width:100%;height:120px;background:#020617;color:white;border-radius:10px;padding:10px"></textarea>
-    </div>
+  const companyValue = document.getElementById("company").value;
+  const modeValue = document.getElementById("mode").value;
+  const direccionValue = document.getElementById("address").value.trim();
+  const comunaValue = document.getElementById("comuna").value.trim();
+  const rutValue = document.getElementById("rut").value.trim();
 
-    <div class="modal-actions">
-      <button class="btn-modal btn-pdf" onclick="saveNote()">Guardar</button>
-      <button class="btn-modal btn-close" onclick="closeNote()">Cancelar</button>
-    </div>
-  </div>
-</div>
+  setStatus("⏳ Enviando consulta a Legends…");
+  showWorkMode();
 
-</body>
-</html>
+  try {
+    let pollUrl = null;
+
+    if (modeValue === "boleta") {
+      if (!rutValue) {
+        hideWorkMode();
+        return setStatus("🔴 Falta el RUT");
+      }
+
+      const start = await fetch(`${API}/boleta`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"},
+        body: JSON.stringify({ rut: rutValue, company: companyValue })
+      });
+
+      if (!start.ok) {
+        hideWorkMode();
+        return openResultModal("Backend no tiene /boleta implementado", "");
+      }
+
+      const data = await start.json();
+      pollUrl = `${API}/boleta/${data.jobId}`;
+    }
+    // =========================
+// FACTIBILIDAD TÉCNICA
+// =========================
+if (modeValue === "factibilidad") {
+  if (!direccionValue || !comunaValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta dirección o comuna");
+  }
+
+  const start = await fetch(`${API}/factibilidad`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+  direccion: direccionValue,
+  comuna: comunaValue,
+  company: companyValue,
+  email: user.email
+})
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /factibilidad implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/factibilidad/${data.jobId}`;
+}
+
+    // =========================
+// AGENDA
+// =========================
+if (modeValue === "agenda") {
+  if (!rutValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta el RUT");
+  }
+
+  const start = await fetch(`${API}/agenda`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+  rut: rutValue,
+  company: companyValue,
+  email: user.email
+})
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /agenda implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/agenda/${data.jobId}`;
+}
+    
+    // =========================
+// ESTADO DE VENTA (VALIDACION)
+// =========================
+if (modeValue === "validacion") {
+  if (!rutValue) {
+    hideWorkMode();
+    return setStatus("🔴 Falta el RUT");
+  }
+
+  const start = await fetch(`${API}/estado-rut`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify({
+  rut: rutValue,
+  company: companyValue,
+  email: user.email
+})
+  });
+
+  if (!start.ok) {
+    hideWorkMode();
+    return openResultModal("Backend no tiene /estado-rut implementado", "");
+  }
+
+  const data = await start.json();
+  pollUrl = `${API}/estado-rut/${data.jobId}`;
+}
+
+    if (!pollUrl) {
+      hideWorkMode();
+      return setStatus("🔴 Modo inválido");
+    }
+
+    setStatus("🟡 Ejecutando en Legends…");
+
+    while (true) {
+      await sleep(2000);
+      const poll = await fetch(pollUrl, { headers: {"ngrok-skip-browser-warning":"true"} });
+      const result = await poll.json();
+
+      if (result.status === "queued" || result.status === "running") continue;
+
+      if (result.status === "error") {
+        hideWorkMode();
+        setStatus("🔴 Error");
+        openResultModal(result.error || "Error desconocido", "");
+        return;
+      }
+
+      if (result.status === "done") {
+        hideWorkMode();
+        setStatus("🟢 Finalizado");
+
+        saveHistory({
+          fecha: new Date().toLocaleString(),
+          modo: modeValue,
+          datos: { direccion: direccionValue, comuna: comunaValue, rut: rutValue, company: companyValue },
+          resultado: result.resultado || "",
+          imagen: result.capturaUrl || "",
+          nota: ""
+        });
+
+        openResultModal(result.resultado, result.capturaUrl);
+        return;
+      }
+    }
+
+  } catch (e) {
+    hideWorkMode();
+    setStatus("🔴 Error");
+    openResultModal(e.message, "");
+  }
+});
