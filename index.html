@@ -22,42 +22,6 @@ background:radial-gradient(circle at top,#0f172a,#020617);
 color:#e5e7eb;
 }
 
-  .rut-wrapper {
-  position: relative;
-}
-
-.rut-hint {
-  position: absolute;
-  top: -42px;
-  left: 0;
-  right: 0;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  font-size: 12px;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: 0.25s ease;
-  pointer-events: none;
-  z-index: 5;
-  box-shadow: 0 10px 30px rgba(0,0,0,.4);
-}
-
-.rut-hint.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.rut-hint.ok {
-  background: #22c55e;
-}
-
-.rut-hint.error {
-  background: #ef4444;
-}
-
 /* SPLASH */
 #splash{
 position:fixed;
@@ -247,14 +211,7 @@ min-height:20px;
 
 <div class="field"><label>DIRECCIÓN</label><input id="address"></div>
 <div class="field"><label>COMUNA</label><input id="comuna"></div>
-<div class="field rut-wrapper">
-  <label>RUT</label>
-  <input id="rut" autocomplete="off" placeholder="Ej: 15425846-8">
-
-  <div id="rutHint" class="rut-hint">
-    Ejemplo: 15425846-8 (sin puntos, con guion)
-  </div>
-</div>
+<div class="field"><label>RUT</label><input id="rut"></div>
 
 <div class="actions">
 <button id="btnRun" class="btn-primary">Ejecutar</button>
@@ -272,57 +229,8 @@ min-height:20px;
 </div>
 
 <script src="app.js"></script>
-  const rutInput = document.getElementById("rut");
-const rutHint  = document.getElementById("rutHint");
-const btnRun   = document.getElementById("btnRun");
-
-function isRutValido(rut) {
-  return /^[0-9]{7,8}-[0-9Kk]$/.test(rut.trim());
-}
-
-// Mostrar hint al entrar
-rutInput.addEventListener("focus", () => {
-  rutHint.classList.add("show");
-});
-
-// Ocultar al salir
-rutInput.addEventListener("blur", () => {
-  setTimeout(() => rutHint.classList.remove("show"), 300);
-});
-
-// Validar mientras escribe
-rutInput.addEventListener("input", () => {
-  const val = rutInput.value.trim();
-
-  if (val === "") {
-    rutHint.textContent = "Ejemplo: 15425846-8 (sin puntos, con guion)";
-    rutHint.className = "rut-hint show";
-    rutInput.style.border = "";
-    btnRun.disabled = false;
-    btnRun.style.opacity = "1";
-    return;
-  }
-
-  if (isRutValido(val)) {
-    rutHint.textContent = "Formato válido ✔";
-    rutHint.className = "rut-hint show ok";
-    rutInput.style.border = "2px solid #22c55e";
-    btnRun.disabled = false;
-    btnRun.style.opacity = "1";
-  } else {
-    rutHint.textContent = "Formato inválido. Usar 15425846-8";
-    rutHint.className = "rut-hint show error";
-    rutInput.style.border = "2px solid #ef4444";
-    btnRun.disabled = true;
-    btnRun.style.opacity = "0.5";
-  }
-});
-</script>
 
 <script>
-
-  <script>
-
 /* =========================
    MODO TRABAJO (JS)
    ========================= */
