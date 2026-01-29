@@ -278,6 +278,37 @@ min-height:20px;
 
 <script src="app.js"></script>
 
+  <script>
+const rutInput = document.getElementById("rut");
+const btnRun = document.getElementById("btnRun");
+
+function isRutValido(rut) {
+  return /^[0-9]{7,8}-[0-9Kk]$/.test(rut.trim());
+}
+
+function validarRutUI() {
+  const rut = rutInput.value.trim();
+
+  if (rut === "") {
+    btnRun.disabled = false;
+    btnRun.style.opacity = "1";
+    return;
+  }
+
+  if (!isRutValido(rut)) {
+    btnRun.disabled = true;
+    btnRun.style.opacity = "0.5";
+    rutInput.style.border = "2px solid #ef4444";
+  } else {
+    btnRun.disabled = false;
+    btnRun.style.opacity = "1";
+    rutInput.style.border = "2px solid #22c55e";
+  }
+}
+
+rutInput.addEventListener("input", validarRutUI);
+</script>
+
 <script>
 /* =========================
    MODO TRABAJO (JS)
