@@ -326,6 +326,35 @@ function logout(){
     </div>
   </div>
 </div>
+  <script>
+(() => {
+  const rutInput = document.getElementById("rut");
+  const btnRun = document.getElementById("btnRun");
+
+  if (!rutInput || !btnRun) return;
+
+  function rutFormatoValido(rut) {
+    return /^[0-9]{7,8}-[0-9Kk]$/.test(rut.trim());
+  }
+
+  btnRun.addEventListener("click", function (e) {
+    const rut = rutInput.value.trim();
+
+    if (rut === "") return; // deja que tu sistema maneje vacío
+
+    if (!rutFormatoValido(rut)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      alert("El RUT debe escribirse sin puntos y con guion.\nEjemplo: 15425846-8");
+
+      rutInput.focus();
+      rutInput.select();
+      return false;
+    }
+  }, true);
+})();
+</script>
 
 </body>
 </html>
