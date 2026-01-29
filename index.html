@@ -189,17 +189,7 @@ min-height:20px;
 </style>
 </head>
 
-  /* =========================
-   SMART RUT VALIDATOR
-   ========================= */
-const rutInput = document.getElementById("rut");
-const rutHint  = document.getElementById("rutHint");
-
-rutInput.addEventListener("focus", () => {
-  rutHint.classList.add("show");
-});
-
-rutInput.addEventListener("blur", () => {
+  
 
 <body>
 
@@ -316,6 +306,18 @@ function hideWorkMode(){
   document.getElementById("workMode").style.display = "none";
   clearInterval(workInterval);
 }
+
+  /* =========================
+   SMART RUT VALIDATOR
+   ========================= */
+const rutInput = document.getElementById("rut");
+const rutHint  = document.getElementById("rutHint");
+
+rutInput.addEventListener("focus", () => {
+  rutHint.classList.add("show");
+});
+
+rutInput.addEventListener("blur", () => {
 
 /* =========================
    USER UI
