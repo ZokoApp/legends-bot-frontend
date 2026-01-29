@@ -100,53 +100,17 @@ button{flex:1;padding:14px;border-radius:16px;border:none;cursor:pointer;font-we
 .dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
 pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size:.75rem;white-space:pre-wrap}
 
-/* MODALES */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:9999}
-.modal-card{width:95%;max-width:520px;background:#020617;border-radius:20px;padding:18px;display:flex;flex-direction:column;max-height:90vh}
-.modal-header{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin-bottom:10px}
-.modal-close{background:transparent;border:none;color:#aaa;font-size:1rem;cursor:pointer}
-.modal-body{flex:1;overflow:auto}
-.modal-body pre{background:#020617;padding:10px;border-radius:10px;font-size:.75rem;margin-bottom:10px}
-.modal-body img{width:100%;border-radius:12px}
-.modal-actions{display:flex;gap:8px;margin-top:12px}
-.btn-modal{flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-size:.75rem;font-weight:600}
-.btn-pdf{background:#2563eb;color:white}
-.btn-wsp{background:#22c55e;color:white}
-.btn-close{background:transparent;border:1px solid #555;color:#ccc}
-
 /* =========================
-   MODO TRABAJO (pantalla dedicada)
+   RUT HINT (AGREGADO)
    ========================= */
-#workMode{
-position:fixed;
-inset:0;
-background:radial-gradient(circle at top,#0f172a,#020617);
-display:none;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-z-index:99998;
-text-align:center;
+#rutHint{
+  display:none;
+  font-size:12px;
+  color:#93c5fd;
+  margin-top:6px;
 }
-
-#workMode img{
-width:90px;
-margin-bottom:20px;
-animation:workPulse 1.4s ease-in-out infinite;
-}
-
-@keyframes workPulse{
-0%{transform:scale(0.9);opacity:0.6}
-50%{transform:scale(1);opacity:1}
-100%{transform:scale(0.9);opacity:0.6}
-}
-
-#workText{
-font-size:0.9rem;
-color:#9ca3af;
-margin-top:12px;
-min-height:20px;
-}
+#rutHint.error{color:#fca5a5}
+#rutHint.ok{color:#86efac}
 </style>
 </head>
 
@@ -154,13 +118,6 @@ min-height:20px;
 
 <div id="splash">
 <img src="icons/icon-192.png">
-</div>
-
-<!-- MODO TRABAJO -->
-<div id="workMode">
-  <img src="icons/icon-192.png">
-  <strong style="font-size:1rem">🤖 Legends Bot trabajando</strong>
-  <div id="workText">Conectando con sistemas corporativos…</div>
 </div>
 
 <div class="container">
@@ -172,17 +129,7 @@ min-height:20px;
 <div class="user-name">
 <div style="display:flex;align-items:center;gap:6px">
   <strong id="userName"></strong>
-  <span id="verifiedBadge" class="verified" style="display:none">
-  <svg viewBox="0 0 24 24" width="16" height="16">
-    <circle cx="12" cy="12" r="10" fill="#1d9bf0"/>
-    <path d="M7 12.5l3 3 7-7"
-          stroke="white"
-          stroke-width="2.5"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
-  </svg>
-</span>
+  <span id="verifiedBadge" class="verified" style="display:none">✔</span>
 </div>
 <span id="userRole"></span>
 </div>
@@ -191,39 +138,21 @@ min-height:20px;
 <button class="btn-logout" onclick="logout()">Salir</button>
 </div>
 
-<div class="field">
-<label>COMPAÑÍA</label>
-<select id="company">
-<option value="VTR">VTR</option>
-<option value="CLARO">CLARO</option>
-</select>
-</div>
-
-<div class="field">
-<label>MODO</label>
-<select id="mode">
-<option value="factibilidad">Factibilidad Técnica</option>
-<option value="validacion">Estado de Venta</option>
-<option value="agenda">Agenda</option>
-<option value="boleta">Boleta / Factura</option>
-</select>
-</div>
-
+<div class="field"><label>COMPAÑÍA</label><select id="company"><option>VTR</option><option>CLARO</option></select></div>
+<div class="field"><label>MODO</label><select id="mode"><option value="factibilidad">Factibilidad</option></select></div>
 <div class="field"><label>DIRECCIÓN</label><input id="address"></div>
 <div class="field"><label>COMUNA</label><input id="comuna"></div>
-<div class="field"><label>RUT</label><input id="rut"></div>
+
+<div class="field">
+<label>RUT</label>
+<input id="rut" placeholder="Ej: 15425846-8">
+<div id="rutHint">Formato requerido: 12345678-9 (sin puntos)</div>
+</div>
 
 <div class="actions">
 <button id="btnRun" class="btn-primary">Ejecutar</button>
 <button id="btnClear" class="btn-secondary">Limpiar</button>
 </div>
-
-<div class="status">
-<div class="dot"></div>
-<span id="statusText">Conectado a Legends Bot</span>
-</div>
-
-<pre id="output"></pre>
 
 </div>
 </div>
@@ -231,129 +160,43 @@ min-height:20px;
 <script src="app.js"></script>
 
 <script>
-/* =========================
-   MODO TRABAJO (JS)
-   ========================= */
-const workMessages = [
-  "Conectando con sistemas corporativos…",
-  "Autenticando credenciales…",
-  "Consultando base de datos Andes…",
-  "Procesando información comercial…",
-  "Validando resultados…",
-  "Generando reporte final…"
-];
-
-let workInterval = null;
-
-function showWorkMode(){
-  document.getElementById("workMode").style.display = "flex";
-  let i = 0;
-  workInterval = setInterval(() => {
-    document.getElementById("workText").innerText = workMessages[i % workMessages.length];
-    i++;
-  }, 2000);
-}
-
-function hideWorkMode(){
-  document.getElementById("workMode").style.display = "none";
-  clearInterval(workInterval);
-}
-
-/* =========================
-   USER UI
-   ========================= */
 document.getElementById("userName").innerText = user.nombre;
 document.getElementById("userRole").innerText = user.rol;
+if(user.rol==="Admin") document.getElementById("verifiedBadge").style.display="flex";
 
-if (user.rol === "Admin") {
-  document.getElementById("verifiedBadge").style.display = "flex";
+/* =========================
+   VALIDACIÓN RUT (AGREGADO)
+   ========================= */
+const rutInput = document.getElementById("rut");
+const btnRun = document.getElementById("btnRun");
+const hint = document.getElementById("rutHint");
+
+function isRutValido(rut){
+  return /^[0-9]{7,8}-[0-9Kk]$/.test(rut);
 }
 
-function logout(){
-  localStorage.removeItem("legends_user");
-  window.location.href="login.html";
-}
-</script>
+rutInput.addEventListener("focus", ()=>{
+  hint.style.display="block";
+});
 
-<!-- MODAL RESULTADO -->
-<div id="resultModal" class="modal-overlay">
-<div class="modal-card">
-<div class="modal-header">
-<strong>Resultado</strong>
-<button class="modal-close" onclick="closeResultModal()">✖</button>
-</div>
-<div class="modal-body">
-<pre id="modalText"></pre>
-<img id="modalImg"/>
-</div>
-<div class="modal-actions">
-<button class="btn-modal btn-pdf" onclick="downloadPDF()">📄 PDF</button>
-<button class="btn-modal btn-wsp" onclick="shareWhatsApp()">📲 WhatsApp</button>
-<button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
-</div>
-</div>
-</div>
-
-<!-- MODAL HISTORIAL -->
-<div id="historyModal" class="modal-overlay">
-<div class="modal-card">
-<div class="modal-header">
-<strong>Historial</strong>
-<button class="modal-close" onclick="closeHistory()">✖</button>
-</div>
-<div class="modal-body" id="historyList"></div>
-<div class="modal-actions">
-<button class="btn-modal btn-close" onclick="closeHistory()">Cerrar</button>
-</div>
-</div>
-</div>
-
-<!-- MODAL NOTA -->
-<div id="noteModal" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-header">
-      <strong>Nota</strong>
-      <button class="modal-close" onclick="closeNote()">✖</button>
-    </div>
-
-    <div class="modal-body">
-      <textarea id="noteText" style="width:100%;height:120px;background:#020617;color:white;border-radius:10px;padding:10px"></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-modal btn-pdf" onclick="saveNote()">Guardar</button>
-      <button class="btn-modal btn-close" onclick="closeNote()">Cancelar</button>
-    </div>
-  </div>
-</div>
-  <script>
-(() => {
-  const rutInput = document.getElementById("rut");
-  const btnRun = document.getElementById("btnRun");
-
-  if (!rutInput || !btnRun) return;
-
-  function rutFormatoValido(rut) {
-    return /^[0-9]{7,8}-[0-9Kk]$/.test(rut.trim());
+rutInput.addEventListener("input", ()=>{
+  const v = rutInput.value.trim();
+  if(v==="" ){
+    btnRun.disabled=false;
+    hint.className="";
+    hint.innerText="Formato requerido: 12345678-9 (sin puntos)";
+    return;
   }
-
-  btnRun.addEventListener("click", function (e) {
-    const rut = rutInput.value.trim();
-
-    if (rut === "") return; // deja que tu sistema maneje vacío
-
-    if (!rutFormatoValido(rut)) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      alert("El RUT debe escribirse sin puntos y con guion.\nEjemplo: 15425846-8");
-
-      rutInput.focus();
-      rutInput.select();
-      return false;
-    }
-  }, true);
-})();
+  if(!isRutValido(v)){
+    btnRun.disabled=true;
+    hint.className="error";
+    hint.innerText="RUT inválido. Ej: 15425846-8";
+  }else{
+    btnRun.disabled=false;
+    hint.className="ok";
+    hint.innerText="Formato correcto ✔";
+  }
+});
 </script>
 
 </body>
