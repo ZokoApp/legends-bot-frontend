@@ -235,10 +235,11 @@ if (modeValue === "factibilidad") {
       "ngrok-skip-browser-warning": "true"
     },
     body: JSON.stringify({
-      direccion: direccionValue,
-      comuna: comunaValue,
-      company: companyValue
-    })
+  direccion: direccionValue,
+  comuna: comunaValue,
+  company: companyValue,
+  email: user.email
+})
   });
 
   if (!start.ok) {
@@ -266,9 +267,10 @@ if (modeValue === "agenda") {
       "ngrok-skip-browser-warning": "true"
     },
     body: JSON.stringify({
-      rut: rutValue,
-      company: companyValue
-    })
+  rut: rutValue,
+  company: companyValue,
+  email: user.email
+})
   });
 
   if (!start.ok) {
@@ -296,9 +298,10 @@ if (modeValue === "validacion") {
       "ngrok-skip-browser-warning": "true"
     },
     body: JSON.stringify({
-      rut: rutValue,
-      company: companyValue
-    })
+  rut: rutValue,
+  company: companyValue,
+  email: user.email
+})
   });
 
   if (!start.ok) {
