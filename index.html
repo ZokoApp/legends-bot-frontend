@@ -188,5 +188,79 @@ function openFactibilidad(){ alert("Modal Factibilidad"); }
 function openAgenda(){ alert("Modal Agenda"); }
 </script>
 
+  <!-- =========================
+     MODAL BOLETA
+========================= -->
+<div id="boletaModal" class="modal-overlay">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <strong>📄 Consulta de Boleta</strong>
+      <button class="modal-close" onclick="closeBoleta()">✖</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="field">
+        <label>Compañía</label>
+        <select id="boletaCompany">
+          <option value="VTR">VTR</option>
+          <option value="CLARO">CLARO</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Cuenta de Facturación <small style="color:#9ca3af">(NO RUT)</small></label>
+        <input id="boletaCuenta" placeholder="Ej: 1029384756">
+      </div>
+
+      <button class="btn-primary" style="margin-top:14px" onclick="runBoleta()">
+        Consultar Boleta
+      </button>
+
+      <div id="boletaStatus" style="margin-top:12px;font-size:.75rem;color:#9ca3af"></div>
+
+    </div>
+
+  </div>
+</div>
+
+  <script>
+function openBoleta(){
+  document.getElementById("boletaModal").style.display = "flex";
+  document.getElementById("boletaStatus").innerText = "";
+}
+
+function closeBoleta(){
+  document.getElementById("boletaModal").style.display = "none";
+}
+
+function runBoleta(){
+  const company = document.getElementById("boletaCompany").value;
+  const cuenta  = document.getElementById("boletaCuenta").value.trim();
+
+  if(!cuenta){
+    document.getElementById("boletaStatus").innerText = "⚠️ Ingrese la cuenta de facturación";
+    return;
+  }
+
+  document.getElementById("boletaStatus").innerText = "⏳ Enviando consulta a Legends Bot...";
+
+  // guardamos lo que usará app.js
+  localStorage.setItem("pending_boleta", JSON.stringify({
+    company,
+    cuenta
+  }));
+
+  closeBoleta();
+
+  // disparamos ejecución normal
+  document.getElementById("mode").value = "boleta";
+  document.getElementById("company").value = company;
+  document.getElementById("rut").value = cuenta;
+  document.getElementById("btnRun").click();
+}
+</script>
+
 </body>
 </html>
