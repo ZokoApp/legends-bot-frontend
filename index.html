@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Legends Bot – Producción</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legends Bot</title>
 
 <script>
 const user = JSON.parse(localStorage.getItem("legends_user"));
-if (!user) window.location.href = "login.html";
+if (!user) location.href = "login.html";
 </script>
 
 <link rel="manifest" href="manifest.json">
@@ -22,71 +22,114 @@ background:radial-gradient(circle at top,#0f172a,#020617);
 color:#e5e7eb;
 }
 
-.container{max-width:420px;margin:0 auto;padding:28px 20px 40px}
-.card{background:rgba(255,255,255,0.04);border-radius:20px;padding:26px 22px 28px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.container{
+max-width:420px;
+margin:0 auto;
+padding:28px 20px;
+}
 
-.user-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.user-info{display:flex;align-items:center;gap:12px}
-.user-info img{width:46px;height:46px;border-radius:50%}
-.user-name{font-size:.8rem;color:#9ca3af}
-.user-name strong{display:block;font-size:.95rem;color:#fff}
+.card{
+background:rgba(255,255,255,.04);
+border-radius:22px;
+padding:26px;
+box-shadow:0 30px 60px rgba(0,0,0,.6);
+}
 
-.btn-logout{
-padding:6px 14px;
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:26px;
+}
+
+.user{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.user img{
+width:46px;
+height:46px;
+border-radius:50%;
+}
+
+.user strong{
+display:block;
+font-size:1rem;
+}
+
+.user span{
+font-size:.75rem;
+color:#9ca3af;
+}
+
+.top-buttons{
+display:flex;
+gap:10px;
+}
+
+.top-buttons button{
+padding:8px 14px;
 border-radius:12px;
 border:1px solid rgba(255,255,255,.2);
 background:transparent;
 color:#9ca3af;
-font-size:.75rem;
 cursor:pointer;
+font-size:.75rem;
 }
 
-.field{margin-bottom:18px}
-.field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
-.field input,.field select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:#020617;
-color:#e5e7eb;
-font-size:.9rem;
+.section-title{
+margin:12px 0 18px;
+text-align:center;
+color:#9ca3af;
+font-size:.8rem;
 }
 
-/* MODE MENU */
-.mode-menu{
+.menu{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:12px;
+gap:16px;
 }
 
-.mode-btn{
-padding:14px;
-border-radius:14px;
+.menu button{
+padding:22px 10px;
+border-radius:18px;
+border:none;
 background:#020617;
-border:1px solid rgba(255,255,255,.1);
 color:white;
 font-weight:700;
+font-size:1rem;
 cursor:pointer;
-font-size:14px;
+border:1px solid rgba(255,255,255,.08);
+transition:.2s;
 }
 
-.mode-btn.active{
-background:linear-gradient(145deg,#2563eb,#1e40af);
-box-shadow:0 0 12px rgba(37,99,235,.6);
+.menu button:hover{
+transform:scale(1.03);
 }
 
-/* BUTTONS */
-.actions{display:flex;gap:12px;margin-top:20px}
-.btn-primary{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff}
-.btn-secondary{background:transparent;color:#9ca3af;border:1px solid rgba(255,255,255,.2)}
+.menu .boleta{background:linear-gradient(145deg,#2563eb,#1e40af)}
+.menu .validacion{background:linear-gradient(145deg,#7c3aed,#4c1d95)}
+.menu .factibilidad{background:linear-gradient(145deg,#0ea5e9,#0369a1)}
+.menu .agenda{background:linear-gradient(145deg,#22c55e,#15803d)}
 
-.status{margin-top:16px;font-size:.75rem;display:flex;gap:6px;align-items:center}
-.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+.status{
+margin-top:22px;
+display:flex;
+align-items:center;
+gap:10px;
+font-size:.8rem;
+color:#9ca3af;
+}
 
-/* MODALES */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:9999}
-.modal-card{width:95%;max-width:520px;background:#020617;border-radius:20px;padding:18px}
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#22c55e;
+box-shadow:0 0 10px #22c55e;
+}
 </style>
 </head>
 
@@ -95,57 +138,39 @@ box-shadow:0 0 12px rgba(37,99,235,.6);
 <div class="container">
 <div class="card">
 
-<div class="user-header">
-  <div class="user-info">
-    <img src="icons/icon-192.png">
-    <div class="user-name">
-      <strong id="userName"></strong>
-      <span id="userRole"></span>
-    </div>
-  </div>
-  <div>
-    <button class="btn-logout" onclick="openHistory()">Historial</button>
-    <button class="btn-logout" onclick="logout()">Salir</button>
-  </div>
+<div class="header">
+<div class="user">
+<img src="icons/icon-192.png">
+<div>
+<strong id="userName"></strong>
+<span id="userRole"></span>
+</div>
 </div>
 
-<div class="field">
-<label>COMPAÑÍA</label>
-<select id="company">
-<option value="VTR">VTR</option>
-<option value="CLARO">CLARO</option>
-</select>
+<div class="top-buttons">
+<button onclick="openHistory()">Historial</button>
+<button onclick="logout()">Salir</button>
+</div>
 </div>
 
-<div class="field">
-<label>MODO</label>
-<div class="mode-menu">
-  <button class="mode-btn" onclick="setMode('factibilidad',this)">Factibilidad</button>
-  <button class="mode-btn" onclick="setMode('validacion',this)">Estado Venta</button>
-  <button class="mode-btn" onclick="setMode('agenda',this)">Agenda</button>
-  <button class="mode-btn" onclick="setMode('boleta',this)">Boleta</button>
-</div>
-<input type="hidden" id="mode">
+<div class="section-title">
+¿QUÉ QUERÉS HACER?
 </div>
 
-<div class="field"><label>Dirección</label><input id="address"></div>
-<div class="field"><label>Comuna</label><input id="comuna"></div>
-<div class="field"><label>Cuenta de Facturación (NO RUT)</label><input id="rut"></div>
-
-<div class="actions">
-<button id="btnRun" class="btn-primary">Ejecutar</button>
-<button id="btnClear" class="btn-secondary">Limpiar</button>
+<div class="menu">
+<button class="boleta" onclick="openBoleta()">📄 Boleta</button>
+<button class="validacion" onclick="openValidacion()">🧾 Estado de Venta</button>
+<button class="factibilidad" onclick="openFactibilidad()">📍 Factibilidad</button>
+<button class="agenda" onclick="openAgenda()">📆 Agenda</button>
 </div>
 
 <div class="status">
 <div class="dot"></div>
-<span id="statusText">Conectado a Legends Bot</span>
+<span>Conectado a Legends Bot</span>
 </div>
 
 </div>
 </div>
-
-<script src="app.js"></script>
 
 <script>
 document.getElementById("userName").innerText = user.nombre;
@@ -153,14 +178,14 @@ document.getElementById("userRole").innerText = user.rol;
 
 function logout(){
   localStorage.removeItem("legends_user");
-  window.location.href="login.html";
+  location.href="login.html";
 }
 
-function setMode(mode,btn){
-  document.getElementById("mode").value = mode;
-  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-}
+// stubs (los conectamos después)
+function openBoleta(){ alert("Modal Boleta"); }
+function openValidacion(){ alert("Modal Estado Venta"); }
+function openFactibilidad(){ alert("Modal Factibilidad"); }
+function openAgenda(){ alert("Modal Agenda"); }
 </script>
 
 </body>
