@@ -21,159 +21,39 @@ font-family:system-ui;
 background:radial-gradient(circle at top,#0f172a,#020617);
 color:#e5e7eb;
 }
-
-.container{
-max-width:420px;
-margin:0 auto;
-padding:28px 20px;
-}
-
-.card{
-background:rgba(255,255,255,.04);
-border-radius:22px;
-padding:26px;
-box-shadow:0 30px 60px rgba(0,0,0,.6);
-}
-
-.header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:26px;
-}
-
-.user{
-display:flex;
-align-items:center;
-gap:12px;
-}
-
-.user img{
-width:46px;
-height:46px;
-border-radius:50%;
-}
-
+.container{max-width:420px;margin:0 auto;padding:28px 20px}
+.card{background:rgba(255,255,255,.04);border-radius:22px;padding:26px;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.user{display:flex;align-items:center;gap:12px}
+.user img{width:46px;height:46px;border-radius:50%}
 .user strong{display:block;font-size:1rem}
 .user span{font-size:.75rem;color:#9ca3af}
-
 .top-buttons{display:flex;gap:10px}
-.top-buttons button{
-padding:8px 14px;
-border-radius:12px;
-border:1px solid rgba(255,255,255,.2);
-background:transparent;
-color:#9ca3af;
-cursor:pointer;
-font-size:.75rem;
-}
+.top-buttons button{padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#9ca3af;cursor:pointer;font-size:.75rem}
+.section-title{margin:12px 0 18px;text-align:center;color:#9ca3af;font-size:.8rem}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.menu button{padding:22px 10px;border-radius:18px;border:none;color:white;font-weight:700;font-size:1rem;cursor:pointer}
+.menu .boleta{background:#1e40af}
+.menu .validacion{background:#4c1d95}
+.menu .factibilidad{background:#0369a1}
+.menu .agenda{background:#15803d}
+.status{margin-top:22px;display:flex;align-items:center;gap:10px;font-size:.8rem;color:#9ca3af}
+.dot{width:10px;height:10px;border-radius:50%;background:#22c55e}
 
-.section-title{
-margin:12px 0 18px;
-text-align:center;
-color:#9ca3af;
-font-size:.8rem;
-}
-
-.menu{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-}
-
-.menu button{
-padding:22px 10px;
-border-radius:18px;
-border:none;
-color:white;
-font-weight:700;
-font-size:1rem;
-cursor:pointer;
-transition:.2s;
-}
-
-.menu .boleta{background:linear-gradient(145deg,#2563eb,#1e40af)}
-.menu .validacion{background:linear-gradient(145deg,#7c3aed,#4c1d95)}
-.menu .factibilidad{background:linear-gradient(145deg,#0ea5e9,#0369a1)}
-.menu .agenda{background:linear-gradient(145deg,#22c55e,#15803d)}
-.menu button:hover{transform:scale(1.04)}
-
-.status{
-margin-top:22px;
-display:flex;
-align-items:center;
-gap:10px;
-font-size:.8rem;
-color:#9ca3af;
-}
-.dot{
-width:10px;
-height:10px;
-border-radius:50%;
-background:#22c55e;
-box-shadow:0 0 10px #22c55e;
-}
-
-/* ===== Screens ===== */
-.screen{
-position:fixed;
-inset:0;
-background:radial-gradient(circle at top,#0f172a,#020617);
-display:none;
-flex-direction:column;
-z-index:9999;
-}
-
-.screen-header{
-display:flex;
-align-items:center;
-gap:14px;
-padding:20px;
-border-bottom:1px solid rgba(255,255,255,.1);
-font-size:1rem;
-}
-
-.back-btn{
-background:transparent;
-border:none;
-color:white;
-font-size:1.6rem;
-cursor:pointer;
-}
-
-.screen-body{
-flex:1;
-padding:24px;
-}
-
+.screen{position:fixed;inset:0;background:#020617;display:none;flex-direction:column;z-index:9999}
+.screen-header{display:flex;align-items:center;gap:14px;padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.back-btn{background:none;border:none;color:white;font-size:1.6rem;cursor:pointer}
+.screen-body{flex:1;padding:24px}
 .field{margin-bottom:18px}
 .field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
-.field input,.field select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:#020617;
-color:#e5e7eb;
-font-size:.9rem;
-}
-
-.btn-primary{
-width:100%;
-padding:14px;
-border-radius:16px;
-border:none;
-font-weight:700;
-background:linear-gradient(135deg,#2563eb,#1e40af);
-color:white;
-cursor:pointer;
-}
+.field input,.field select{width:100%;padding:14px;border-radius:14px;border:none;background:#020617;color:#e5e7eb}
+.btn-primary{width:100%;padding:14px;border-radius:16px;border:none;font-weight:700;background:#2563eb;color:white;cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<!-- CAMPOS OCULTOS que usa tu app.js -->
+<!-- INPUTS que usa app.js -->
 <input type="hidden" id="company">
 <input type="hidden" id="mode">
 <input type="hidden" id="rut">
@@ -183,7 +63,6 @@ cursor:pointer;
 
 <div class="container">
 <div class="card">
-
 <div class="header">
 <div class="user">
 <img src="icons/icon-192.png">
@@ -192,7 +71,6 @@ cursor:pointer;
 <span id="userRole"></span>
 </div>
 </div>
-
 <div class="top-buttons">
 <button onclick="openHistory()">Historial</button>
 <button onclick="logout()">Salir</button>
@@ -208,156 +86,70 @@ cursor:pointer;
 <button class="agenda" onclick="openAgenda()">📆 Agenda</button>
 </div>
 
-<div class="status">
-<div class="dot"></div>
-<span>Conectado a Legends Bot</span>
-</div>
-
+<div class="status"><div class="dot"></div>Conectado a Legends Bot</div>
 </div>
 </div>
 
-<!-- ========== BOLETA ========== -->
+<!-- BOLETA -->
 <div id="boletaScreen" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="closeScreens()">←</button>
-    <strong>📄 Boleta</strong>
-  </div>
-  <div class="screen-body">
-    <div class="field">
-      <label>Compañía</label>
-      <select id="boletaCompany">
-        <option value="VTR">VTR</option>
-        <option value="CLARO">CLARO</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>RUT</label>
-      <input id="boletaRut">
-    </div>
-    <button class="btn-primary" onclick="runBoleta()">Consultar</button>
-  </div>
+<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Boleta</div>
+<div class="screen-body">
+<select id="boletaCompany"><option>VTR</option><option>CLARO</option></select>
+<input id="boletaRut" placeholder="RUT">
+<button class="btn-primary" onclick="runBoleta()">Consultar</button>
+</div>
 </div>
 
-<!-- ========== VALIDACION ========== -->
+<!-- VALIDACION -->
 <div id="validacionScreen" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="closeScreens()">←</button>
-    <strong>🧾 Estado de Venta</strong>
-  </div>
-  <div class="screen-body">
-    <div class="field">
-      <label>Compañía</label>
-      <select id="validacionCompany">
-        <option value="VTR">VTR</option>
-        <option value="CLARO">CLARO</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>RUT</label>
-      <input id="validacionRut">
-    </div>
-    <button class="btn-primary" onclick="runValidacion()">Consultar</button>
-  </div>
+<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Validación</div>
+<div class="screen-body">
+<select id="validacionCompany"><option>VTR</option><option>CLARO</option></select>
+<input id="validacionRut" placeholder="RUT">
+<button class="btn-primary" onclick="runValidacion()">Consultar</button>
+</div>
 </div>
 
-<!-- ========== FACTIBILIDAD ========== -->
+<!-- FACTIBILIDAD -->
 <div id="factibilidadScreen" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="closeScreens()">←</button>
-    <strong>📍 Factibilidad</strong>
-  </div>
-  <div class="screen-body">
-    <div class="field">
-      <label>Compañía</label>
-      <select id="factibilidadCompany">
-        <option value="VTR">VTR</option>
-        <option value="CLARO">CLARO</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Dirección</label>
-      <input id="factibilidadAddress">
-    </div>
-    <div class="field">
-      <label>Comuna</label>
-      <input id="factibilidadComuna">
-    </div>
-    <button class="btn-primary" onclick="runFactibilidad()">Consultar</button>
-  </div>
+<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Factibilidad</div>
+<div class="screen-body">
+<select id="factibilidadCompany"><option>VTR</option><option>CLARO</option></select>
+<input id="factibilidadAddress" placeholder="Dirección">
+<input id="factibilidadComuna" placeholder="Comuna">
+<button class="btn-primary" onclick="runFactibilidad()">Consultar</button>
+</div>
 </div>
 
-<!-- ========== AGENDA ========== -->
+<!-- AGENDA -->
 <div id="agendaScreen" class="screen">
-  <div class="screen-header">
-    <button class="back-btn" onclick="closeScreens()">←</button>
-    <strong>📆 Agenda</strong>
-  </div>
-  <div class="screen-body">
-    <div class="field">
-      <label>Compañía</label>
-      <select id="agendaCompany">
-        <option value="VTR">VTR</option>
-        <option value="CLARO">CLARO</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>RUT</label>
-      <input id="agendaRut">
-    </div>
-    <button class="btn-primary" onclick="runAgenda()">Consultar</button>
-  </div>
+<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Agenda</div>
+<div class="screen-body">
+<select id="agendaCompany"><option>VTR</option><option>CLARO</option></select>
+<input id="agendaRut" placeholder="RUT">
+<button class="btn-primary" onclick="runAgenda()">Consultar</button>
+</div>
 </div>
 
 <script>
 document.getElementById("userName").innerText = user.nombre;
 document.getElementById("userRole").innerText = user.rol;
 
-function logout(){
-  localStorage.removeItem("legends_user");
-  location.href="login.html";
-}
-
-function closeScreens(){
-  document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
-}
-
+function logout(){ localStorage.removeItem("legends_user"); location.href="login.html"; }
+function closeScreens(){ document.querySelectorAll(".screen").forEach(s=>s.style.display="none"); }
 function openBoleta(){ closeScreens(); boletaScreen.style.display="flex"; }
 function openValidacion(){ closeScreens(); validacionScreen.style.display="flex"; }
 function openFactibilidad(){ closeScreens(); factibilidadScreen.style.display="flex"; }
 function openAgenda(){ closeScreens(); agendaScreen.style.display="flex"; }
 
-function runBoleta(){
-  company.value = boletaCompany.value;
-  mode.value = "boleta";
-  rut.value = boletaRut.value.trim();
-  closeScreens();
-  btnRun.click();
-}
+function runBoleta(){ company.value=boletaCompany.value; mode.value="boleta"; rut.value=boletaRut.value; closeScreens(); btnRun.click(); }
+function runValidacion(){ company.value=validacionCompany.value; mode.value="validacion"; rut.value=validacionRut.value; closeScreens(); btnRun.click(); }
+function runFactibilidad(){ company.value=factibilidadCompany.value; mode.value="factibilidad"; address.value=factibilidadAddress.value; comuna.value=factibilidadComuna.value; closeScreens(); btnRun.click(); }
+function runAgenda(){ company.value=agendaCompany.value; mode.value="agenda"; rut.value=agendaRut.value; closeScreens(); btnRun.click(); }
 
-function runValidacion(){
-  company.value = validacionCompany.value;
-  mode.value = "validacion";
-  rut.value = validacionRut.value.trim();
-  closeScreens();
-  btnRun.click();
-}
-
-function runFactibilidad(){
-  company.value = factibilidadCompany.value;
-  mode.value = "factibilidad";
-  address.value = factibilidadAddress.value.trim();
-  comuna.value = factibilidadComuna.value.trim();
-  closeScreens();
-  btnRun.click();
-}
-
-function runAgenda(){
-  company.value = agendaCompany.value;
-  mode.value = "agenda";
-  rut.value = agendaRut.value.trim();
-  closeScreens();
-  btnRun.click();
-}
+window.addEventListener("DOMContentLoaded", () => {
+  window.btnRun = document.getElementById("btnRun");
+});
 </script>
 
 <script src="app.js"></script>
