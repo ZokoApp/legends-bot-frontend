@@ -22,166 +22,50 @@ background:radial-gradient(circle at top,#0f172a,#020617);
 color:#e5e7eb;
 }
 
-.container{
-max-width:420px;
-margin:0 auto;
-padding:28px 20px;
-}
+.container{max-width:420px;margin:0 auto;padding:28px 20px}
+.card{background:rgba(255,255,255,.04);border-radius:22px;padding:26px;box-shadow:0 30px 60px rgba(0,0,0,.6)}
 
-.card{
-background:rgba(255,255,255,.04);
-border-radius:22px;
-padding:26px;
-box-shadow:0 30px 60px rgba(0,0,0,.6);
-}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.user{display:flex;align-items:center;gap:12px}
+.user img{width:46px;height:46px;border-radius:50%}
+.user strong{display:block;font-size:1rem}
+.user span{font-size:.75rem;color:#9ca3af}
 
-.header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:26px;
-}
+.top-buttons{display:flex;gap:10px}
+.top-buttons button{padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#9ca3af;cursor:pointer;font-size:.75rem}
 
-.user{
-display:flex;
-align-items:center;
-gap:12px;
-}
+.section-title{margin:12px 0 18px;text-align:center;color:#9ca3af;font-size:.8rem}
 
-.user img{
-width:46px;
-height:46px;
-border-radius:50%;
-}
-
-.user strong{
-display:block;
-font-size:1rem;
-}
-
-.user span{
-font-size:.75rem;
-color:#9ca3af;
-}
-
-.top-buttons{
-display:flex;
-gap:10px;
-}
-
-.top-buttons button{
-padding:8px 14px;
-border-radius:12px;
-border:1px solid rgba(255,255,255,.2);
-background:transparent;
-color:#9ca3af;
-cursor:pointer;
-font-size:.75rem;
-}
-
-.section-title{
-margin:12px 0 18px;
-text-align:center;
-color:#9ca3af;
-font-size:.8rem;
-}
-
-.menu{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-}
-
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .menu button{
-padding:22px 10px;
-border-radius:18px;
-border:none;
-color:white;
-font-weight:700;
-font-size:1rem;
-cursor:pointer;
-transition:.2s;
+padding:22px 10px;border-radius:18px;border:none;color:white;
+font-weight:700;font-size:1rem;cursor:pointer;transition:.2s
 }
-
+.menu button:hover{transform:scale(1.04)}
 .menu .boleta{background:linear-gradient(145deg,#2563eb,#1e40af)}
 .menu .validacion{background:linear-gradient(145deg,#7c3aed,#4c1d95)}
 .menu .factibilidad{background:linear-gradient(145deg,#0ea5e9,#0369a1)}
 .menu .agenda{background:linear-gradient(145deg,#22c55e,#15803d)}
 
-.menu button:hover{transform:scale(1.04)}
+.status{margin-top:22px;display:flex;align-items:center;gap:10px;font-size:.8rem;color:#9ca3af}
+.dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e}
 
-.status{
-margin-top:22px;
-display:flex;
-align-items:center;
-gap:10px;
-font-size:.8rem;
-color:#9ca3af;
-}
-
-.dot{
-width:10px;
-height:10px;
-border-radius:50%;
-background:#22c55e;
-box-shadow:0 0 10px #22c55e;
-}
-
-/* ======================
-   SCREENS (pantallas)
-====================== */
+/* Screens */
 .screen{
-position:fixed;
-inset:0;
-background:radial-gradient(circle at top,#0f172a,#020617);
-display:none;
-flex-direction:column;
-z-index:9999;
+position:fixed;inset:0;background:radial-gradient(circle at top,#0f172a,#020617);
+display:none;flex-direction:column;z-index:9999
 }
-
-.screen-header{
-display:flex;
-align-items:center;
-gap:14px;
-padding:20px;
-border-bottom:1px solid rgba(255,255,255,.1);
-font-size:1rem;
-}
-
-.back-btn{
-background:transparent;
-border:none;
-color:white;
-font-size:1.6rem;
-cursor:pointer;
-}
-
-.screen-body{
-flex:1;
-padding:24px;
-}
+.screen-header{display:flex;align-items:center;gap:14px;padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.back-btn{background:transparent;border:none;color:white;font-size:1.6rem;cursor:pointer}
+.screen-body{flex:1;padding:24px}
 
 .field{margin-bottom:18px}
 .field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
-.field input,.field select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:none;
-background:#020617;
-color:#e5e7eb;
-font-size:.9rem;
-}
+.field input,.field select{width:100%;padding:14px;border-radius:14px;border:none;background:#020617;color:#e5e7eb;font-size:.9rem}
 
 .btn-primary{
-width:100%;
-padding:14px;
-border-radius:16px;
-border:none;
-font-weight:700;
-background:linear-gradient(135deg,#2563eb,#1e40af);
-color:white;
-cursor:pointer;
+width:100%;padding:14px;border-radius:16px;border:none;font-weight:700;
+background:linear-gradient(135deg,#2563eb,#1e40af);color:white;cursor:pointer
 }
 </style>
 </head>
@@ -192,40 +76,37 @@ cursor:pointer;
 <div class="card">
 
 <div class="header">
-<div class="user">
-<img src="icons/icon-192.png">
-<div>
-<strong id="userName"></strong>
-<span id="userRole"></span>
-</div>
-</div>
-
-<div class="top-buttons">
-<button onclick="openHistory()">Historial</button>
-<button onclick="logout()">Salir</button>
-</div>
+  <div class="user">
+    <img src="icons/icon-192.png">
+    <div>
+      <strong id="userName"></strong>
+      <span id="userRole"></span>
+    </div>
+  </div>
+  <div class="top-buttons">
+    <button onclick="openHistory()">Historial</button>
+    <button onclick="logout()">Salir</button>
+  </div>
 </div>
 
 <div class="section-title">¿QUÉ QUERÉS HACER?</div>
 
 <div class="menu">
-<button class="boleta" onclick="openBoleta()">📄 Boleta</button>
-<button class="validacion" onclick="openValidacion()">🧾 Estado de Venta</button>
-<button class="factibilidad" onclick="openFactibilidad()">📍 Factibilidad</button>
-<button class="agenda" onclick="openAgenda()">📆 Agenda</button>
+  <button class="boleta" onclick="openBoleta()">📄 Boleta</button>
+  <button class="validacion" onclick="openValidacion()">🧾 Estado de Venta</button>
+  <button class="factibilidad" onclick="openFactibilidad()">📍 Factibilidad</button>
+  <button class="agenda" onclick="openAgenda()">📆 Agenda</button>
 </div>
 
 <div class="status">
-<div class="dot"></div>
-<span>Conectado a Legends Bot</span>
+  <div class="dot"></div>
+  <span>Conectado a Legends Bot</span>
 </div>
 
 </div>
 </div>
 
-<!-- =====================
-     BOLETA SCREEN
-===================== -->
+<!-- BOLETA SCREEN -->
 <div id="boletaScreen" class="screen">
   <div class="screen-header">
     <button class="back-btn" onclick="closeScreens()">←</button>
@@ -266,14 +147,14 @@ function closeScreens(){
 
 function openBoleta(){
   closeScreens();
-  document.getElementById("boletaScreen").style.display="flex";
-  document.getElementById("boletaStatus").innerText="";
+  boletaScreen.style.display="flex";
+  boletaStatus.innerText="";
 }
 
-// stubs de las otras
-function openValidacion(){ alert("Luego conectamos Estado de Venta"); }
-function openFactibilidad(){ alert("Luego conectamos Factibilidad"); }
-function openAgenda(){ alert("Luego conectamos Agenda"); }
+// siguientes pantallas
+function openValidacion(){ alert("Ahora seguimos con Estado de Venta"); }
+function openFactibilidad(){ alert("Luego Factibilidad"); }
+function openAgenda(){ alert("Luego Agenda"); }
 
 function runBoleta(){
   const company = boletaCompany.value;
@@ -285,11 +166,8 @@ function runBoleta(){
   }
 
   boletaStatus.innerText="⏳ Enviando consulta a Legends Bot…";
-
   localStorage.setItem("pending_boleta", JSON.stringify({company, cuenta}));
-
   closeScreens();
-  // aquí luego se conecta con tu app.js real
 }
 </script>
 
