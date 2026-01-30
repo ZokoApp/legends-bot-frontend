@@ -96,23 +96,19 @@ gap:16px;
 padding:22px 10px;
 border-radius:18px;
 border:none;
-background:#020617;
 color:white;
 font-weight:700;
 font-size:1rem;
 cursor:pointer;
-border:1px solid rgba(255,255,255,.08);
 transition:.2s;
-}
-
-.menu button:hover{
-transform:scale(1.03);
 }
 
 .menu .boleta{background:linear-gradient(145deg,#2563eb,#1e40af)}
 .menu .validacion{background:linear-gradient(145deg,#7c3aed,#4c1d95)}
 .menu .factibilidad{background:linear-gradient(145deg,#0ea5e9,#0369a1)}
 .menu .agenda{background:linear-gradient(145deg,#22c55e,#15803d)}
+
+.menu button:hover{transform:scale(1.04)}
 
 .status{
 margin-top:22px;
@@ -129,6 +125,63 @@ height:10px;
 border-radius:50%;
 background:#22c55e;
 box-shadow:0 0 10px #22c55e;
+}
+
+/* ======================
+   SCREENS (pantallas)
+====================== */
+.screen{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:none;
+flex-direction:column;
+z-index:9999;
+}
+
+.screen-header{
+display:flex;
+align-items:center;
+gap:14px;
+padding:20px;
+border-bottom:1px solid rgba(255,255,255,.1);
+font-size:1rem;
+}
+
+.back-btn{
+background:transparent;
+border:none;
+color:white;
+font-size:1.6rem;
+cursor:pointer;
+}
+
+.screen-body{
+flex:1;
+padding:24px;
+}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
+.field input,.field select{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:none;
+background:#020617;
+color:#e5e7eb;
+font-size:.9rem;
+}
+
+.btn-primary{
+width:100%;
+padding:14px;
+border-radius:16px;
+border:none;
+font-weight:700;
+background:linear-gradient(135deg,#2563eb,#1e40af);
+color:white;
+cursor:pointer;
 }
 </style>
 </head>
@@ -153,9 +206,7 @@ box-shadow:0 0 10px #22c55e;
 </div>
 </div>
 
-<div class="section-title">
-¿QUÉ QUERÉS HACER?
-</div>
+<div class="section-title">¿QUÉ QUERÉS HACER?</div>
 
 <div class="menu">
 <button class="boleta" onclick="openBoleta()">📄 Boleta</button>
@@ -172,6 +223,34 @@ box-shadow:0 0 10px #22c55e;
 </div>
 </div>
 
+<!-- =====================
+     BOLETA SCREEN
+===================== -->
+<div id="boletaScreen" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="closeScreens()">←</button>
+    <strong>📄 Consulta de Boleta</strong>
+  </div>
+
+  <div class="screen-body">
+    <div class="field">
+      <label>Compañía</label>
+      <select id="boletaCompany">
+        <option value="VTR">VTR</option>
+        <option value="CLARO">CLARO</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Cuenta de Facturación (NO RUT)</label>
+      <input id="boletaCuenta" placeholder="Ej: 1029384756">
+    </div>
+
+    <button class="btn-primary" onclick="runBoleta()">Consultar Boleta</button>
+    <div id="boletaStatus" style="margin-top:14px;font-size:.8rem;color:#9ca3af"></div>
+  </div>
+</div>
+
 <script>
 document.getElementById("userName").innerText = user.nombre;
 document.getElementById("userRole").innerText = user.rol;
@@ -181,84 +260,36 @@ function logout(){
   location.href="login.html";
 }
 
-// stubs (los conectamos después)
-function openBoleta(){ alert("Modal Boleta"); }
-function openValidacion(){ alert("Modal Estado Venta"); }
-function openFactibilidad(){ alert("Modal Factibilidad"); }
-function openAgenda(){ alert("Modal Agenda"); }
-</script>
+function closeScreens(){
+  document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+}
 
-  <!-- =========================
-     MODAL BOLETA
-========================= -->
-<div id="boletaModal" class="modal-overlay">
-  <div class="modal-card">
-
-    <div class="modal-header">
-      <strong>📄 Consulta de Boleta</strong>
-      <button class="modal-close" onclick="closeBoleta()">✖</button>
-    </div>
-
-    <div class="modal-body">
-
-      <div class="field">
-        <label>Compañía</label>
-        <select id="boletaCompany">
-          <option value="VTR">VTR</option>
-          <option value="CLARO">CLARO</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Cuenta de Facturación <small style="color:#9ca3af">(NO RUT)</small></label>
-        <input id="boletaCuenta" placeholder="Ej: 1029384756">
-      </div>
-
-      <button class="btn-primary" style="margin-top:14px" onclick="runBoleta()">
-        Consultar Boleta
-      </button>
-
-      <div id="boletaStatus" style="margin-top:12px;font-size:.75rem;color:#9ca3af"></div>
-
-    </div>
-
-  </div>
-</div>
-
-  <script>
 function openBoleta(){
-  document.getElementById("boletaModal").style.display = "flex";
-  document.getElementById("boletaStatus").innerText = "";
+  closeScreens();
+  document.getElementById("boletaScreen").style.display="flex";
+  document.getElementById("boletaStatus").innerText="";
 }
 
-function closeBoleta(){
-  document.getElementById("boletaModal").style.display = "none";
-}
+// stubs de las otras
+function openValidacion(){ alert("Luego conectamos Estado de Venta"); }
+function openFactibilidad(){ alert("Luego conectamos Factibilidad"); }
+function openAgenda(){ alert("Luego conectamos Agenda"); }
 
 function runBoleta(){
-  const company = document.getElementById("boletaCompany").value;
-  const cuenta  = document.getElementById("boletaCuenta").value.trim();
+  const company = boletaCompany.value;
+  const cuenta  = boletaCuenta.value.trim();
 
   if(!cuenta){
-    document.getElementById("boletaStatus").innerText = "⚠️ Ingrese la cuenta de facturación";
+    boletaStatus.innerText="⚠️ Ingrese la cuenta de facturación";
     return;
   }
 
-  document.getElementById("boletaStatus").innerText = "⏳ Enviando consulta a Legends Bot...";
+  boletaStatus.innerText="⏳ Enviando consulta a Legends Bot…";
 
-  // guardamos lo que usará app.js
-  localStorage.setItem("pending_boleta", JSON.stringify({
-    company,
-    cuenta
-  }));
+  localStorage.setItem("pending_boleta", JSON.stringify({company, cuenta}));
 
-  closeBoleta();
-
-  // disparamos ejecución normal
-  document.getElementById("mode").value = "boleta";
-  document.getElementById("company").value = company;
-  document.getElementById("rut").value = cuenta;
-  document.getElementById("btnRun").click();
+  closeScreens();
+  // aquí luego se conecta con tu app.js real
 }
 </script>
 
