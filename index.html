@@ -351,5 +351,17 @@ function logout(){
   </div>
 </div>
 
+  <script>
+function setCompany(name, btn) {
+  document.getElementById("company").value = name;
+
+  document.querySelectorAll(".company-btn").forEach(b => {
+    b.classList.remove("active");
+  });
+
+  btn.classList.add("active");
+}
+</script>
+
 </body>
 </html>
