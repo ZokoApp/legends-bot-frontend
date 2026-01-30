@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Legends Bot</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Legends Bot – Producción</title>
 
 <script>
 const user = JSON.parse(localStorage.getItem("legends_user"));
-if (!user) location.href = "login.html";
+if (!user) window.location.href = "login.html";
 </script>
 
 <link rel="manifest" href="manifest.json">
@@ -21,138 +21,311 @@ font-family:system-ui;
 background:radial-gradient(circle at top,#0f172a,#020617);
 color:#e5e7eb;
 }
-.container{max-width:420px;margin:0 auto;padding:28px 20px}
-.card{background:rgba(255,255,255,.04);border-radius:22px;padding:26px;box-shadow:0 30px 60px rgba(0,0,0,.6)}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
-.user{display:flex;align-items:center;gap:12px}
-.user img{width:46px;height:46px;border-radius:50%}
-.user strong{display:block;font-size:1rem}
-.user span{font-size:.75rem;color:#9ca3af}
-.top-buttons{display:flex;gap:10px}
-.top-buttons button{padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#9ca3af;cursor:pointer;font-size:.75rem}
-.section-title{margin:12px 0 18px;text-align:center;color:#9ca3af;font-size:.8rem}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.menu button{padding:22px 10px;border-radius:18px;border:none;color:white;font-weight:700;font-size:1rem;cursor:pointer}
-.menu .boleta{background:#1e40af}
-.menu .validacion{background:#4c1d95}
-.menu .factibilidad{background:#0369a1}
-.menu .agenda{background:#15803d}
-.status{margin-top:22px;display:flex;align-items:center;gap:10px;font-size:.8rem;color:#9ca3af}
-.dot{width:10px;height:10px;border-radius:50%;background:#22c55e}
 
-.screen{position:fixed;inset:0;background:#020617;display:none;flex-direction:column;z-index:9999}
-.screen-header{display:flex;align-items:center;gap:14px;padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
-.back-btn{background:none;border:none;color:white;font-size:1.6rem;cursor:pointer}
-.screen-body{flex:1;padding:24px}
+/* SPLASH */
+#splash{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99999;
+animation:fadeOut 1.2s ease forwards;
+animation-delay:1.2s;
+}
+
+#splash img{
+width:110px;
+animation:logoPulse 1.2s ease infinite;
+}
+
+@keyframes logoPulse{
+0%{transform:scale(0.9)}
+50%{transform:scale(1)}
+100%{transform:scale(0.9)}
+}
+
+@keyframes fadeOut{
+to{opacity:0;pointer-events:none}
+}
+
+.container{max-width:420px;margin:0 auto;padding:28px 20px 40px}
+.card{background:rgba(255,255,255,0.04);border-radius:20px;padding:26px 22px 28px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+
+.user-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.user-info{display:flex;align-items:center;gap:12px}
+.user-info img{width:46px;height:46px;border-radius:50%}
+.user-name{font-size:.8rem;color:#9ca3af}
+.user-name strong{display:block;font-size:.95rem;color:#fff}
+
+.verified {
+  width:16px;
+  height:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.btn-logout{
+padding:6px 14px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.2);
+background:transparent;
+color:#9ca3af;
+font-size:.75rem;
+cursor:pointer;
+flex:none;
+}
+
 .field{margin-bottom:18px}
 .field label{display:block;font-size:.75rem;color:#9ca3af;margin-bottom:6px}
-.field input,.field select{width:100%;padding:14px;border-radius:14px;border:none;background:#020617;color:#e5e7eb}
-.btn-primary{width:100%;padding:14px;border-radius:16px;border:none;font-weight:700;background:#2563eb;color:white;cursor:pointer}
+.field input,.field select{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:none;
+background:#020617;
+color:#e5e7eb;
+font-size:.9rem;
+}
+
+.actions{display:flex;gap:12px;margin-top:20px}
+button{flex:1;padding:14px;border-radius:16px;border:none;cursor:pointer;font-weight:600;font-size:.95rem}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff}
+.btn-secondary{background:transparent;color:#9ca3af;border:1px solid rgba(255,255,255,.2)}
+
+.status{margin-top:16px;font-size:.75rem;display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+pre{margin-top:16px;background:#020617;padding:12px;border-radius:12px;font-size:.75rem;white-space:pre-wrap}
+
+/* MODALES */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:9999}
+.modal-card{width:95%;max-width:520px;background:#020617;border-radius:20px;padding:18px;display:flex;flex-direction:column;max-height:90vh}
+.modal-header{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin-bottom:10px}
+.modal-close{background:transparent;border:none;color:#aaa;font-size:1rem;cursor:pointer}
+.modal-body{flex:1;overflow:auto}
+.modal-body pre{background:#020617;padding:10px;border-radius:10px;font-size:.75rem;margin-bottom:10px}
+.modal-body img{width:100%;border-radius:12px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.btn-modal{flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-size:.75rem;font-weight:600}
+.btn-pdf{background:#2563eb;color:white}
+.btn-wsp{background:#22c55e;color:white}
+.btn-close{background:transparent;border:1px solid #555;color:#ccc}
+
+/* =========================
+   MODO TRABAJO (pantalla dedicada)
+   ========================= */
+#workMode{
+position:fixed;
+inset:0;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99998;
+text-align:center;
+}
+
+#workMode img{
+width:90px;
+margin-bottom:20px;
+animation:workPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes workPulse{
+0%{transform:scale(0.9);opacity:0.6}
+50%{transform:scale(1);opacity:1}
+100%{transform:scale(0.9);opacity:0.6}
+}
+
+#workText{
+font-size:0.9rem;
+color:#9ca3af;
+margin-top:12px;
+min-height:20px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- INPUTS que usa app.js -->
-<input type="hidden" id="company">
-<input type="hidden" id="mode">
-<input type="hidden" id="rut">
-<input type="hidden" id="address">
-<input type="hidden" id="comuna">
-<button id="btnRun" style="display:none"></button>
+<div id="splash">
+<img src="icons/icon-192.png">
+</div>
+
+<!-- MODO TRABAJO -->
+<div id="workMode">
+  <img src="icons/icon-192.png">
+  <strong style="font-size:1rem">🤖 Legends Bot trabajando</strong>
+  <div id="workText">Conectando con sistemas corporativos…</div>
+</div>
 
 <div class="container">
 <div class="card">
-<div class="header">
-<div class="user">
+
+<div class="user-header">
+<div class="user-info">
 <img src="icons/icon-192.png">
-<div>
-<strong id="userName"></strong>
+<div class="user-name">
+<div style="display:flex;align-items:center;gap:6px">
+  <strong id="userName"></strong>
+  <span id="verifiedBadge" class="verified" style="display:none">
+  <svg viewBox="0 0 24 24" width="16" height="16">
+    <circle cx="12" cy="12" r="10" fill="#1d9bf0"/>
+    <path d="M7 12.5l3 3 7-7"
+          stroke="white"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </svg>
+</span>
+</div>
 <span id="userRole"></span>
 </div>
 </div>
-<div class="top-buttons">
-<button onclick="openHistory()">Historial</button>
-<button onclick="logout()">Salir</button>
+<button class="btn-logout" onclick="openHistory()">Historial</button>
+<button class="btn-logout" onclick="logout()">Salir</button>
+</div>
+
+<div class="field">
+<label>COMPAÑÍA</label>
+<select id="company">
+<option value="VTR">VTR</option>
+<option value="CLARO">CLARO</option>
+</select>
+</div>
+
+<div class="field">
+<label>MODO</label>
+<select id="mode">
+<option value="factibilidad">Factibilidad Técnica</option>
+<option value="validacion">Estado de Venta</option>
+<option value="agenda">Agenda</option>
+<option value="boleta">Boleta / Factura</option>
+</select>
+</div>
+
+<div class="field"><label>DIRECCIÓN</label><input id="address"></div>
+<div class="field"><label>COMUNA</label><input id="comuna"></div>
+<div class="field"><label>CUENTA DE FACTURACION</label><input id="rut"></div>
+
+<div class="actions">
+<button id="btnRun" class="btn-primary">Ejecutar</button>
+<button id="btnClear" class="btn-secondary">Limpiar</button>
+</div>
+
+<div class="status">
+<div class="dot"></div>
+<span id="statusText">Conectado a Legends Bot</span>
+</div>
+
+<pre id="output"></pre>
+
 </div>
 </div>
 
-<div class="section-title">¿QUÉ QUERÉS HACER?</div>
-
-<div class="menu">
-<button class="boleta" onclick="openBoleta()">📄 Boleta</button>
-<button class="validacion" onclick="openValidacion()">🧾 Estado de Venta</button>
-<button class="factibilidad" onclick="openFactibilidad()">📍 Factibilidad</button>
-<button class="agenda" onclick="openAgenda()">📆 Agenda</button>
-</div>
-
-<div class="status"><div class="dot"></div>Conectado a Legends Bot</div>
-</div>
-</div>
-
-<!-- BOLETA -->
-<div id="boletaScreen" class="screen">
-<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Boleta</div>
-<div class="screen-body">
-<select id="boletaCompany"><option>VTR</option><option>CLARO</option></select>
-<input id="boletaRut" placeholder="RUT">
-<button class="btn-primary" onclick="runBoleta()">Consultar</button>
-</div>
-</div>
-
-<!-- VALIDACION -->
-<div id="validacionScreen" class="screen">
-<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Validación</div>
-<div class="screen-body">
-<select id="validacionCompany"><option>VTR</option><option>CLARO</option></select>
-<input id="validacionRut" placeholder="RUT">
-<button class="btn-primary" onclick="runValidacion()">Consultar</button>
-</div>
-</div>
-
-<!-- FACTIBILIDAD -->
-<div id="factibilidadScreen" class="screen">
-<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Factibilidad</div>
-<div class="screen-body">
-<select id="factibilidadCompany"><option>VTR</option><option>CLARO</option></select>
-<input id="factibilidadAddress" placeholder="Dirección">
-<input id="factibilidadComuna" placeholder="Comuna">
-<button class="btn-primary" onclick="runFactibilidad()">Consultar</button>
-</div>
-</div>
-
-<!-- AGENDA -->
-<div id="agendaScreen" class="screen">
-<div class="screen-header"><button class="back-btn" onclick="closeScreens()">←</button>Agenda</div>
-<div class="screen-body">
-<select id="agendaCompany"><option>VTR</option><option>CLARO</option></select>
-<input id="agendaRut" placeholder="RUT">
-<button class="btn-primary" onclick="runAgenda()">Consultar</button>
-</div>
-</div>
+<script src="app.js"></script>
 
 <script>
+/* =========================
+   MODO TRABAJO (JS)
+   ========================= */
+const workMessages = [
+  "Conectando con sistemas corporativos…",
+  "Autenticando credenciales…",
+  "Consultando base de datos Andes…",
+  "Procesando información comercial…",
+  "Validando resultados…",
+  "Generando reporte final…"
+];
+
+let workInterval = null;
+
+function showWorkMode(){
+  document.getElementById("workMode").style.display = "flex";
+  let i = 0;
+  workInterval = setInterval(() => {
+    document.getElementById("workText").innerText = workMessages[i % workMessages.length];
+    i++;
+  }, 2000);
+}
+
+function hideWorkMode(){
+  document.getElementById("workMode").style.display = "none";
+  clearInterval(workInterval);
+}
+
+/* =========================
+   USER UI
+   ========================= */
 document.getElementById("userName").innerText = user.nombre;
 document.getElementById("userRole").innerText = user.rol;
 
-function logout(){ localStorage.removeItem("legends_user"); location.href="login.html"; }
-function closeScreens(){ document.querySelectorAll(".screen").forEach(s=>s.style.display="none"); }
-function openBoleta(){ closeScreens(); boletaScreen.style.display="flex"; }
-function openValidacion(){ closeScreens(); validacionScreen.style.display="flex"; }
-function openFactibilidad(){ closeScreens(); factibilidadScreen.style.display="flex"; }
-function openAgenda(){ closeScreens(); agendaScreen.style.display="flex"; }
+if (user.rol === "Admin") {
+  document.getElementById("verifiedBadge").style.display = "flex";
+}
 
-function runBoleta(){ company.value=boletaCompany.value; mode.value="boleta"; rut.value=boletaRut.value; closeScreens(); btnRun.click(); }
-function runValidacion(){ company.value=validacionCompany.value; mode.value="validacion"; rut.value=validacionRut.value; closeScreens(); btnRun.click(); }
-function runFactibilidad(){ company.value=factibilidadCompany.value; mode.value="factibilidad"; address.value=factibilidadAddress.value; comuna.value=factibilidadComuna.value; closeScreens(); btnRun.click(); }
-function runAgenda(){ company.value=agendaCompany.value; mode.value="agenda"; rut.value=agendaRut.value; closeScreens(); btnRun.click(); }
-
-window.addEventListener("DOMContentLoaded", () => {
-  window.btnRun = document.getElementById("btnRun");
-});
+function logout(){
+  localStorage.removeItem("legends_user");
+  window.location.href="login.html";
+}
 </script>
 
-<script src="app.js"></script>
+<!-- MODAL RESULTADO -->
+<div id="resultModal" class="modal-overlay">
+<div class="modal-card">
+<div class="modal-header">
+<strong>Resultado</strong>
+<button class="modal-close" onclick="closeResultModal()">✖</button>
+</div>
+<div class="modal-body">
+<pre id="modalText"></pre>
+<img id="modalImg"/>
+</div>
+<div class="modal-actions">
+<button class="btn-modal btn-pdf" onclick="downloadPDF()">📄 PDF</button>
+<button class="btn-modal btn-wsp" onclick="shareWhatsApp()">📲 WhatsApp</button>
+<button class="btn-modal btn-close" onclick="closeResultModal()">Cerrar</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL HISTORIAL -->
+<div id="historyModal" class="modal-overlay">
+<div class="modal-card">
+<div class="modal-header">
+<strong>Historial</strong>
+<button class="modal-close" onclick="closeHistory()">✖</button>
+</div>
+<div class="modal-body" id="historyList"></div>
+<div class="modal-actions">
+<button class="btn-modal btn-close" onclick="closeHistory()">Cerrar</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL NOTA -->
+<div id="noteModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <strong>Nota</strong>
+      <button class="modal-close" onclick="closeNote()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <textarea id="noteText" style="width:100%;height:120px;background:#020617;color:white;border-radius:10px;padding:10px"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-pdf" onclick="saveNote()">Guardar</button>
+      <button class="btn-modal btn-close" onclick="closeNote()">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
