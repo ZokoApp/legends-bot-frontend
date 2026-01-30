@@ -91,6 +91,28 @@ to{opacity:0;pointer-events:none}
   box-shadow: 0 0 12px rgba(34,197,94,.6);
 }
 
+  .mode-menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.mode-btn{
+  padding:14px;
+  border-radius:14px;
+  background:#020617;
+  border:1px solid rgba(255,255,255,.1);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.mode-btn.active{
+  background:linear-gradient(145deg,#2563eb,#1e40af);
+  box-shadow:0 0 12px rgba(37,99,235,.6);
+}
+
 .btn-logout{
 padding:6px 14px;
 border-radius:12px;
@@ -223,14 +245,16 @@ min-height:20px;
 </div>
 
 <div class="field">
-<label>COMPAÑÍA</label>
+<label>MODO</label>
 
-<div class="company-menu">
-  <button class="company-btn" onclick="setCompany('VTR', this)">VTR</button>
-  <button class="company-btn" onclick="setCompany('CLARO', this)">CLARO</button>
+<div class="mode-menu">
+  <button class="mode-btn" onclick="setMode('factibilidad', this)">Factibilidad</button>
+  <button class="mode-btn" onclick="setMode('validacion', this)">Estado Venta</button>
+  <button class="mode-btn" onclick="setMode('agenda', this)">Agenda</button>
+  <button class="mode-btn" onclick="setMode('boleta', this)">Boleta</button>
 </div>
 
-<input type="hidden" id="company" value="">
+<input type="hidden" id="mode" value="">
 </div>
 
 <div class="field"><label>DIRECCIÓN</label><input id="address"></div>
@@ -356,6 +380,18 @@ function setCompany(name, btn) {
   document.getElementById("company").value = name;
 
   document.querySelectorAll(".company-btn").forEach(b => {
+    b.classList.remove("active");
+  });
+
+  btn.classList.add("active");
+}
+</script>
+
+  <script>
+function setMode(mode, btn){
+  document.getElementById("mode").value = mode;
+
+  document.querySelectorAll(".mode-btn").forEach(b=>{
     b.classList.remove("active");
   });
 
